@@ -1,0 +1,64 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+**/doc/api/
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/.cxx/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets — ne jamais committer
+.env
+.env.*
+!.env.example
+!.env.json.example
+*.env
+!*.env.example
+supabase/.env
+**/secrets/
+**/credentials.json
+
+# Logs locaux
+*.log
+
+# Generated
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# Coverage & tests
+coverage/
+.test_coverage/
+
+# Windows build artifacts
+**/windows/flutter/ephemeral/
+
+# Android
+**/android/.gradle/
+**/android/local.properties
+**/android/key.properties
+**/*.jks
+**/*.keystore
+
+# iOS
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
