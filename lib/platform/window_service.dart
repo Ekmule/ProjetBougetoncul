@@ -15,6 +15,9 @@ abstract class WindowService {
     required bool isPanel,
   });
 
+  /// Redimensionne la pastille (mode bulle uniquement).
+  Future<void> applyBubbleSize(double size);
+
   Future<void> setAlwaysOnTop(bool enabled);
 
   Future<void> moveBy(Offset delta);

@@ -11,6 +11,7 @@ void main() {
       DevicePreferenceKeys.bubbleVisible: false,
       DevicePreferenceKeys.alwaysOnTop: false,
       DevicePreferenceKeys.startupEnabled: true,
+      DevicePreferenceKeys.bubbleSize: 72.0,
     });
 
     final prefs = await SharedPreferences.getInstance();
@@ -21,6 +22,7 @@ void main() {
     expect(settings.bubbleVisible, isFalse);
     expect(settings.alwaysOnTop, isFalse);
     expect(settings.startupEnabled, isTrue);
+    expect(settings.bubbleSize, 72);
   });
 
   test('saveBubblePosition persiste les coordonnées', () async {
@@ -32,5 +34,18 @@ void main() {
 
     expect(prefs.getDouble(DevicePreferenceKeys.bubbleX), 50);
     expect(prefs.getDouble(DevicePreferenceKeys.bubbleY), 75);
+  });
+
+  test('saveBubbleIconId et onboarding sont persistés', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final store = DeviceSettingsStore(prefs);
+
+    await store.saveBubbleIconId('icon03');
+    expect(store.readBubbleSettings().bubbleIconId, 'icon03');
+
+    expect(store.isOnboardingCompleted(), isFalse);
+    await store.markOnboardingCompleted();
+    expect(store.isOnboardingCompleted(), isTrue);
   });
 }

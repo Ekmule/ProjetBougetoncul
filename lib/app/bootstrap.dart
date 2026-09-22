@@ -5,6 +5,7 @@ import 'package:flutter_alone/flutter_alone.dart';
 import 'package:mya/application/bubble/bubble_device_settings.dart';
 import 'package:mya/data/local/database.dart';
 import 'package:mya/data/local/database_seed.dart';
+import 'package:mya/core/install/install_options.dart';
 import 'package:mya/data/local/device_settings_store.dart';
 import 'package:mya/platform/local_notification_service.dart';
 import 'package:mya/platform/notification_service.dart';
@@ -66,7 +67,23 @@ class AppBootstrap {
 
     final sharedPreferences = await SharedPreferences.getInstance();
     final settingsStore = DeviceSettingsStore(sharedPreferences);
-    final bubbleSettings = settingsStore.readBubbleSettings();
+    var bubbleSettings = settingsStore.readBubbleSettings();
+
+    final installOptions = InstallOptions.readIfPresent();
+    if (installOptions != null) {
+      if (installOptions.startupEnabled) {
+        await settingsStore.saveStartupEnabled(true);
+      }
+      if (installOptions.preferCloudSync) {
+        await settingsStore.savePreferCloudSync(true);
+      }
+      await settingsStore.saveBubbleIconId(installOptions.bubbleIconId);
+      // L'installateur contient déjà la galerie : ne pas afficher une seconde
+      // boîte de dialogue au premier lancement dans la fenêtre 48–96 px.
+      await settingsStore.markOnboardingCompleted();
+      bubbleSettings = settingsStore.readBubbleSettings();
+      await InstallOptions.deleteIfPresent();
+    }
 
     final startupService = Platform.isWindows
         ? WindowsStartupService()
@@ -79,7 +96,9 @@ class AppBootstrap {
     if (Platform.isWindows) {
       await _ensureSingleInstance();
 
-      final windowService = WindowsWindowController();
+      final windowService = WindowsWindowController(
+        bubbleSize: bubbleSettings.bubbleSize,
+      );
       await windowService.initializeBubbleWindow(
         initialPosition: bubbleSettings.position,
         alwaysOnTop: bubbleSettings.alwaysOnTop,

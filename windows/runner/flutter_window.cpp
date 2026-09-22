@@ -51,6 +51,14 @@ LRESULT
 FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
                               WPARAM const wparam,
                               LPARAM const lparam) noexcept {
+  // La fenêtre MYA est déplacée et redimensionnée par Flutter. Forcer toute sa
+  // surface en zone cliente évite que window_manager transforme les bords de
+  // la petite pastille en zones de redimensionnement ou en HTNOWHERE, ce qui
+  // faisait disparaître les événements de clic et de survol.
+  if (message == WM_NCHITTEST) {
+    return HTCLIENT;
+  }
+
   // Give Flutter, including plugins, an opportunity to handle window messages.
   if (flutter_controller_) {
     std::optional<LRESULT> result =

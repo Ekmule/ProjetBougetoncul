@@ -1,6 +1,6 @@
 /// Icône et menu de la zone de notification Windows (ADR-010).
 abstract class TrayService {
-  Future<void> initialize();
+  Future<void> initialize({String? iconAssetPath});
 
   Future<void> updateMenu();
 

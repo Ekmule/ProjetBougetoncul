@@ -116,6 +116,38 @@ class LocalNotificationService implements NotificationService {
     await _plugin.cancel(id: notificationIdForTask(taskId));
   }
 
+  @override
+  Future<void> showInfo({
+    required String title,
+    required String body,
+  }) async {
+    _assertInitialized();
+
+    try {
+      await _plugin.show(
+        id: 0x4D594100, // identifiant fixe « MYA » pour les infos système
+        title: title,
+        body: body,
+        notificationDetails: const NotificationDetails(
+          android: AndroidNotificationDetails(
+            _channelId,
+            _channelName,
+            channelDescription: _channelDescription,
+          ),
+          iOS: DarwinNotificationDetails(),
+          macOS: DarwinNotificationDetails(),
+          windows: WindowsNotificationDetails(),
+        ),
+      );
+    } catch (error, stackTrace) {
+      appLogger.w(
+        'Impossible d\'afficher la notification info',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
   void _assertInitialized() {
     if (!_initialized) {
       throw StateError('LocalNotificationService.initialize() requis.');

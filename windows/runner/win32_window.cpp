@@ -134,8 +134,12 @@ bool Win32Window::Create(const std::wstring& title,
   UINT dpi = FlutterDesktopGetDpiForMonitor(monitor);
   double scale_factor = dpi / 96.0;
 
+  // MYA pilote entièrement la taille et les interactions de sa fenêtre.
+  // WS_OVERLAPPEDWINDOW impose une largeur minimale native (environ 136 px)
+  // même lorsque la pastille demandée ne fait que 48–96 px.
   HWND window = CreateWindow(
-      window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
+      window_class, title.c_str(),
+      WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
       Scale(origin.x, scale_factor), Scale(origin.y, scale_factor),
       Scale(size.width, scale_factor), Scale(size.height, scale_factor),
       nullptr, nullptr, GetModuleHandle(nullptr), this);

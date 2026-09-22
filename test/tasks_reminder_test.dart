@@ -29,6 +29,12 @@ class FakeNotificationService implements NotificationService {
     cancelled.add(taskId);
     scheduled.remove(taskId);
   }
+
+  @override
+  Future<void> showInfo({
+    required String title,
+    required String body,
+  }) async {}
 }
 
 ProviderContainer _createContainer(

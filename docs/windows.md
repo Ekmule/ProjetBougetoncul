@@ -112,6 +112,8 @@ Building with plugins requires symlink support.
 | Action | Comment |
 |---|---|
 | **Pastille rouge** | Clic = panneau complet · survol = aperçu · glisser = déplacer |
+| **Paramètres** | Icône engrenage dans le panneau · ou clic droit sur l'icône tray |
+| **Icône tray** | Près de l'horloge (^ sur Windows 11) · clic droit = menu complet |
 | **Créer une tâche** | Clic pastille (ou clic sur l’aperçu), puis champ « + Ajouter un pense-bête » ; ou **Ctrl+Alt+Espace** |
 | **Valider une tâche** | Clic sur le cercle ☐ à gauche de la tâche |
 | **Modifier / supprimer** | Clic sur le titre d’une tâche dans le panneau complet |
@@ -171,6 +173,42 @@ L'exécutable se trouve dans :
 ```
 build\windows\x64\runner\Release\mya.exe
 ```
+
+### Installateur Windows (recommandé pour votre PC cobaye)
+
+Prérequis : [Inno Setup 6](https://jrsoftware.org/isdl.php) (gratuit).
+
+```powershell
+cd E:\Project-Repo\ProjetBougetoncul
+powershell -ExecutionPolicy Bypass -File .\scripts\build-installer.ps1 -BumpBuild
+```
+
+Le switch **`-BumpBuild`** incrémente le numéro de build dans `pubspec.yaml` (ex. `1.0.0+1` → `1.0.0+2`) et produit un installateur distinct à chaque compilation, par ex. `dist\MYA-Setup-1.0.0-build2.exe`.
+
+| Étape | Contenu |
+|---|---|
+| **Dossier d'installation** | Par défaut `C:\Program Files\MYA` (modifiable à la première install) |
+| **Mise à jour** | Même `AppId` → l'assistant détecte une mise à jour, conserve le dossier d'install |
+| **Données utilisateur** | **Non effacées** : base SQLite `%LOCALAPPDATA%\mya\`, préférences `%APPDATA%\com.mya\` |
+| **Raccourci bureau** | Optionnel (première install uniquement) |
+| **Démarrage avec Windows** | Coché par défaut — appliqué au premier lancement uniquement |
+| **Synchronisation cloud** | Option « bientôt disponible » — enregistre la préférence pour D14–D15 |
+
+### Tester une mise à jour
+
+1. Installez `MYA-Setup-1.0.0-build1.exe`, créez des tâches, changez l'icône de pastille.
+2. Recompilez avec `-BumpBuild` → `MYA-Setup-1.0.0-build2.exe`.
+3. Fermez MYA (clic droit tray → Quitter), lancez le nouvel installateur.
+4. L'assistant doit afficher **« Mise à jour ou réparation de MYA »** (pas une install from scratch).
+5. Vérifiez que vos tâches et paramètres sont toujours là.
+
+> **Note :** l'installateur `MYA-Setup-1.0.0.exe` (sans numéro de build) enregistre la version `1.0.0`. Les builds suivants (`build2`, `build3`…) la détectent comme mise à jour vers `1.0.0.2`, etc.
+
+L'installateur généré se trouve dans `dist\MYA-Setup-<version>-build<N>.exe`.
+
+> Après installation, lancez MYA depuis le menu Démarrer (pas `flutter run`). Le chemin fixe permet au démarrage automatique et à l'icône tray de fonctionner correctement.
+
+Build release manuel (sans installateur) :
 
 ---
 

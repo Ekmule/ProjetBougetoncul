@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mya/core/utils/date_display.dart';
 import 'package:mya/domain/entities/task.dart';
@@ -20,6 +22,7 @@ class TaskListTile extends StatelessWidget {
     this.onSetReminder,
     this.onClearReminder,
     this.onEditTitle,
+    this.onEditTaskRequested,
     this.onDelete,
     this.isCompleted = false,
     this.enableCategoryMove = true,
@@ -37,6 +40,7 @@ class TaskListTile extends StatelessWidget {
   final void Function(String id, DateTime when)? onSetReminder;
   final void Function(String id)? onClearReminder;
   final Future<void> Function(String id, String title)? onEditTitle;
+  final void Function(Task task)? onEditTaskRequested;
   final Future<void> Function(String id)? onDelete;
   final bool isCompleted;
   final bool enableCategoryMove;
@@ -74,6 +78,14 @@ class TaskListTile extends StatelessWidget {
     }
   }
 
+  Future<void> _handleTap(BuildContext context) async {
+    if (onEditTaskRequested != null) {
+      onEditTaskRequested!(task);
+      return;
+    }
+    await _showEditDialog(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
@@ -99,8 +111,8 @@ class TaskListTile extends StatelessWidget {
         enableTaskEdit &&
         !isCompleted &&
         task.isActive &&
-        onEditTitle != null &&
-        onDelete != null;
+        (onEditTaskRequested != null ||
+            (onEditTitle != null && onDelete != null));
 
     final isOverdue = !isCompleted && _dateService.isOverdue(task, now);
     final subtitle = _subtitle();
@@ -128,7 +140,7 @@ class TaskListTile extends StatelessWidget {
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
-      onTap: canEditTask ? () => _showEditDialog(context) : null,
+      onTap: canEditTask ? () => unawaited(_handleTap(context)) : null,
       title: Tooltip(
         message: canEditTask ? 'Cliquer pour modifier' : '',
         child: Text(

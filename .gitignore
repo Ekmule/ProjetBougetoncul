@@ -49,6 +49,9 @@ supabase/.env
 coverage/
 .test_coverage/
 
+# Installateur Windows
+dist/
+
 # Windows build artifacts
 **/windows/flutter/ephemeral/
 

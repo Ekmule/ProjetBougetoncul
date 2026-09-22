@@ -10,4 +10,10 @@ abstract class NotificationService {
   });
 
   Future<void> cancelReminder(String taskId);
+
+  /// Notification immédiate (aide, info système).
+  Future<void> showInfo({
+    required String title,
+    required String body,
+  });
 }

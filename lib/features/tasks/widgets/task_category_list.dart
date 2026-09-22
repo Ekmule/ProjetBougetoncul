@@ -18,6 +18,7 @@ class TaskCategorySection extends StatelessWidget {
     this.onSetReminder,
     this.onClearReminder,
     this.onEditTitle,
+    this.onEditTaskRequested,
     this.onDelete,
     this.isCompleted = false,
     this.showWhenEmpty = false,
@@ -38,6 +39,7 @@ class TaskCategorySection extends StatelessWidget {
   final void Function(String id, DateTime when)? onSetReminder;
   final void Function(String id)? onClearReminder;
   final Future<void> Function(String id, String title)? onEditTitle;
+  final void Function(Task task)? onEditTaskRequested;
   final Future<void> Function(String id)? onDelete;
   final bool isCompleted;
   final bool showWhenEmpty;
@@ -93,6 +95,7 @@ class TaskCategorySection extends StatelessWidget {
                 onSetReminder: onSetReminder,
                 onClearReminder: onClearReminder,
                 onEditTitle: onEditTitle,
+                onEditTaskRequested: onEditTaskRequested,
                 onDelete: onDelete,
                 isCompleted: isCompleted,
                 enableCategoryMove: enableCategoryMove,
@@ -120,6 +123,7 @@ class TaskCategoryList extends StatelessWidget {
     this.onSetReminder,
     this.onClearReminder,
     this.onEditTitle,
+    this.onEditTaskRequested,
     this.onDelete,
     this.isPreview = false,
     this.showCompleted = true,
@@ -141,6 +145,7 @@ class TaskCategoryList extends StatelessWidget {
   final void Function(String id, DateTime when)? onSetReminder;
   final void Function(String id)? onClearReminder;
   final Future<void> Function(String id, String title)? onEditTitle;
+  final void Function(Task task)? onEditTaskRequested;
   final Future<void> Function(String id)? onDelete;
   final bool isPreview;
   final bool showCompleted;
@@ -159,7 +164,9 @@ class TaskCategoryList extends StatelessWidget {
     final canEditReminder =
         enableReminderEdit && !isPreview && onSetReminder != null;
     final canEditTask =
-        enableTaskEdit && !isPreview && onEditTitle != null && onDelete != null;
+        enableTaskEdit &&
+        (onEditTaskRequested != null ||
+            (onEditTitle != null && onDelete != null));
 
     return ListView(
       padding: padding,
@@ -193,6 +200,7 @@ class TaskCategoryList extends StatelessWidget {
             onSetReminder: onSetReminder,
             onClearReminder: onClearReminder,
             onEditTitle: onEditTitle,
+            onEditTaskRequested: onEditTaskRequested,
             onDelete: onDelete,
             enableTaskEdit: canEditTask,
           ),

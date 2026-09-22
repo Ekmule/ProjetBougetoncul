@@ -5,7 +5,7 @@ class NoOpTrayService implements TrayService {
   const NoOpTrayService();
 
   @override
-  Future<void> initialize() async {}
+  Future<void> initialize({String? iconAssetPath}) async {}
 
   @override
   Future<void> updateMenu() async {}

@@ -9,14 +9,15 @@ import 'package:window_manager/window_manager.dart';
 ///
 /// Tout appel à window_manager passe par cette classe — jamais depuis un widget.
 class WindowsWindowController implements WindowService {
-  WindowsWindowController();
+  WindowsWindowController({
+    double bubbleSize = WindowConstants.defaultBubbleSize,
+  }) : _bubbleSize = bubbleSize,
+       _lastSize = Size(bubbleSize, bubbleSize);
 
   Offset? _lastPosition;
   var _alwaysOnTop = true;
-  Size _lastSize = const Size(
-    WindowConstants.bubbleSize,
-    WindowConstants.bubbleSize,
-  );
+  double _bubbleSize;
+  Size _lastSize;
 
   /// Initialise la pastille : fenêtre petite, opaque, sans bordure.
   @override
@@ -29,16 +30,13 @@ class WindowsWindowController implements WindowService {
     _alwaysOnTop = alwaysOnTop;
     final position = initialPosition ?? await _defaultBubblePosition();
     _lastPosition = position;
-    _lastSize = const Size(
-      WindowConstants.bubbleSize,
-      WindowConstants.bubbleSize,
-    );
+    _lastSize = Size(_bubbleSize, _bubbleSize);
 
-    const windowOptions = WindowOptions(
-      size: Size(WindowConstants.bubbleSize, WindowConstants.bubbleSize),
-      minimumSize: Size(WindowConstants.bubbleSize, WindowConstants.bubbleSize),
+    final windowOptions = WindowOptions(
+      size: _lastSize,
+      minimumSize: _lastSize,
       center: false,
-      backgroundColor: WindowConstants.bubbleColor,
+      backgroundColor: WindowConstants.bubbleHitTestColor,
       skipTaskbar: true,
       titleBarStyle: TitleBarStyle.hidden,
       windowButtonVisibility: false,
@@ -46,8 +44,10 @@ class WindowsWindowController implements WindowService {
 
     await windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.setAsFrameless();
-      await windowManager.setHasShadow(true);
-      await windowManager.setBackgroundColor(WindowConstants.bubbleColor);
+      await windowManager.setHasShadow(false);
+      await windowManager.setBackgroundColor(
+        WindowConstants.bubbleHitTestColor,
+      );
       await windowManager.setSize(_lastSize);
       await windowManager.setPosition(position);
       await windowManager.setAlwaysOnTop(alwaysOnTop);
@@ -75,10 +75,7 @@ class WindowsWindowController implements WindowService {
         WindowConstants.previewHeight,
       );
     } else {
-      targetSize = const Size(
-        WindowConstants.bubbleSize,
-        WindowConstants.bubbleSize,
-      );
+      targetSize = Size(_bubbleSize, _bubbleSize);
     }
 
     final currentPosition = _lastPosition ?? await windowManager.getPosition();
@@ -89,8 +86,12 @@ class WindowsWindowController implements WindowService {
     );
 
     if (isBubble) {
-      await windowManager.setBackgroundColor(WindowConstants.bubbleColor);
+      await windowManager.setHasShadow(false);
+      await windowManager.setBackgroundColor(
+        WindowConstants.bubbleHitTestColor,
+      );
     } else {
+      await windowManager.setHasShadow(true);
       await windowManager.setBackgroundColor(const Color(0xFF1E1E1E));
     }
 
@@ -116,6 +117,37 @@ class WindowsWindowController implements WindowService {
       'panel': isPanel,
       'size': '${targetSize.width.toInt()}x${targetSize.height.toInt()}',
       'pos': '${adjustedPosition.dx.toInt()},${adjustedPosition.dy.toInt()}',
+    });
+  }
+
+  @override
+  Future<void> applyBubbleSize(double size) async {
+    _bubbleSize = size.clamp(
+      WindowConstants.minBubbleSize,
+      WindowConstants.maxBubbleSize,
+    );
+
+    final currentSize = await windowManager.getSize();
+    final bubbleSize = Size(_bubbleSize, _bubbleSize);
+    if (currentSize == bubbleSize) return;
+
+    final currentPosition = _lastPosition ?? await windowManager.getPosition();
+    final adjustedPosition = _adjustPositionForResize(
+      currentPosition,
+      _lastSize,
+      bubbleSize,
+    );
+
+    await windowManager.setHasShadow(false);
+    await windowManager.setMinimumSize(bubbleSize);
+    await windowManager.setSize(bubbleSize);
+    await windowManager.setPosition(adjustedPosition);
+    _lastPosition = adjustedPosition;
+    _lastSize = bubbleSize;
+    await _ensureAlwaysOnTop();
+
+    BubbleDebug.log('applyBubbleSize', {
+      'size': '${_bubbleSize.toInt()}x${_bubbleSize.toInt()}',
     });
   }
 
@@ -195,7 +227,7 @@ class WindowsWindowController implements WindowService {
     final scale = display.scaleFactor ?? 1.0;
 
     // Position physique en pixels (tenir compte du scale DPI).
-    final bubblePx = WindowConstants.bubbleSize * scale;
+    final bubblePx = _bubbleSize * scale;
     final marginPx = WindowConstants.screenMargin * scale;
 
     final x = visibleSize.width - bubblePx - marginPx;

@@ -20,9 +20,11 @@ class TaskPanel extends StatelessWidget {
     this.onSetReminder,
     this.onClearReminder,
     this.onEditTitle,
+    this.onEditTaskRequested,
     this.onDelete,
     required this.onToggleAlwaysOnTop,
     required this.onHide,
+    this.onSettings,
     this.onExpand,
     this.quickAddHotkeyLabel = 'Ctrl+Alt+Espace',
   });
@@ -40,15 +42,36 @@ class TaskPanel extends StatelessWidget {
   final void Function(String id, DateTime when)? onSetReminder;
   final void Function(String id)? onClearReminder;
   final Future<void> Function(String id, String title)? onEditTitle;
+  final void Function(Task task)? onEditTaskRequested;
   final Future<void> Function(String id)? onDelete;
   final VoidCallback onToggleAlwaysOnTop;
   final VoidCallback onHide;
+  final VoidCallback? onSettings;
   final VoidCallback? onExpand;
   final String quickAddHotkeyLabel;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final taskList = TaskCategoryList(
+      groupedTasks: groupedTasks,
+      completedTasks: completedTasks,
+      isPreview: isPreview,
+      showCompleted: !isPreview,
+      showEmptySections: !isPreview,
+      onComplete: onComplete,
+      onReopen: onReopen,
+      onMoveCategory: onMoveCategory,
+      onSetPlannedDate: onSetPlannedDate,
+      onClearPlannedDate: onClearPlannedDate,
+      onSetReminder: onSetReminder,
+      onClearReminder: onClearReminder,
+      onEditTitle: onEditTitle,
+      onEditTaskRequested: onEditTaskRequested,
+      onDelete: onDelete,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+    );
 
     return Material(
       color: theme.scaffoldBackgroundColor.withValues(alpha: 0.95),
@@ -67,28 +90,19 @@ class TaskPanel extends StatelessWidget {
               onToggleAlwaysOnTop: onToggleAlwaysOnTop,
               onHide: onHide,
               onClose: onClose,
+              onSettings: onSettings,
               onExpand: onExpand,
               compact: isPreview,
             ),
             if (!isPreview) const QuickAddInlineBar(),
             Expanded(
-              child: TaskCategoryList(
-                groupedTasks: groupedTasks,
-                completedTasks: completedTasks,
-                isPreview: isPreview,
-                showCompleted: !isPreview,
-                showEmptySections: !isPreview,
-                onComplete: onComplete,
-                onReopen: onReopen,
-                onMoveCategory: onMoveCategory,
-                onSetPlannedDate: onSetPlannedDate,
-                onClearPlannedDate: onClearPlannedDate,
-                onSetReminder: onSetReminder,
-                onClearReminder: onClearReminder,
-                onEditTitle: onEditTitle,
-                onDelete: onDelete,
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-              ),
+              child: isPreview && onExpand != null
+                  ? GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onExpand,
+                      child: taskList,
+                    )
+                  : taskList,
             ),
             if (!isPreview)
               Padding(
@@ -114,6 +128,7 @@ class _PanelHeader extends StatelessWidget {
     required this.onToggleAlwaysOnTop,
     required this.onHide,
     required this.onClose,
+    this.onSettings,
     this.onExpand,
     this.compact = false,
   });
@@ -122,6 +137,7 @@ class _PanelHeader extends StatelessWidget {
   final VoidCallback onToggleAlwaysOnTop;
   final VoidCallback onHide;
   final VoidCallback onClose;
+  final VoidCallback? onSettings;
   final VoidCallback? onExpand;
   final bool compact;
 
@@ -145,6 +161,14 @@ class _PanelHeader extends StatelessWidget {
             ),
           ),
           const Spacer(),
+          if (onSettings != null)
+            IconButton(
+              tooltip: 'Paramètres',
+              icon: Icon(Icons.settings_outlined, size: iconSize),
+              visualDensity: compact ? VisualDensity.compact : null,
+              constraints: buttonConstraints,
+              onPressed: onSettings,
+            ),
           if (onExpand != null)
             IconButton(
               tooltip: 'Ouvrir le panneau complet',
