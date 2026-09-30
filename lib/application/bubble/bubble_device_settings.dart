@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:mya/application/bubble/bubble_position.dart';
 import 'package:mya/core/constants/bubble_icon_catalog.dart';
 import 'package:mya/core/constants/window_constants.dart';
 
@@ -7,6 +8,9 @@ import 'package:mya/core/constants/window_constants.dart';
 class BubbleDeviceSettings extends Equatable {
   const BubbleDeviceSettings({
     this.position,
+    this.anchor,
+    this.displayId,
+    this.freeDragEnabled = false,
     this.bubbleVisible = true,
     this.alwaysOnTop = true,
     this.startupEnabled = false,
@@ -15,6 +19,9 @@ class BubbleDeviceSettings extends Equatable {
   });
 
   final Offset? position;
+  final BubbleAnchor? anchor;
+  final String? displayId;
+  final bool freeDragEnabled;
   final bool bubbleVisible;
   final bool alwaysOnTop;
   final bool startupEnabled;
@@ -24,6 +31,11 @@ class BubbleDeviceSettings extends Equatable {
   BubbleDeviceSettings copyWith({
     Offset? position,
     bool clearPosition = false,
+    BubbleAnchor? anchor,
+    bool clearAnchor = false,
+    String? displayId,
+    bool clearDisplayId = false,
+    bool? freeDragEnabled,
     bool? bubbleVisible,
     bool? alwaysOnTop,
     bool? startupEnabled,
@@ -32,6 +44,9 @@ class BubbleDeviceSettings extends Equatable {
   }) {
     return BubbleDeviceSettings(
       position: clearPosition ? null : position ?? this.position,
+      anchor: clearAnchor ? null : anchor ?? this.anchor,
+      displayId: clearDisplayId ? null : displayId ?? this.displayId,
+      freeDragEnabled: freeDragEnabled ?? this.freeDragEnabled,
       bubbleVisible: bubbleVisible ?? this.bubbleVisible,
       alwaysOnTop: alwaysOnTop ?? this.alwaysOnTop,
       startupEnabled: startupEnabled ?? this.startupEnabled,
@@ -42,11 +57,14 @@ class BubbleDeviceSettings extends Equatable {
 
   @override
   List<Object?> get props => [
-        position,
-        bubbleVisible,
-        alwaysOnTop,
-        startupEnabled,
-        bubbleSize,
-        bubbleIconId,
-      ];
+    position,
+    anchor,
+    displayId,
+    freeDragEnabled,
+    bubbleVisible,
+    alwaysOnTop,
+    startupEnabled,
+    bubbleSize,
+    bubbleIconId,
+  ];
 }

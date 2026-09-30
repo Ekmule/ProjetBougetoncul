@@ -2,6 +2,9 @@
 abstract final class DevicePreferenceKeys {
   static const bubbleX = 'bubble_x';
   static const bubbleY = 'bubble_y';
+  static const bubbleAnchor = 'bubble_anchor';
+  static const bubbleDisplayId = 'bubble_display_id';
+  static const bubbleFreeDragEnabled = 'bubble_free_drag_enabled';
   static const bubbleVisible = 'bubble_visible';
   static const alwaysOnTop = 'always_on_top';
   static const startupEnabled = 'startup_enabled';

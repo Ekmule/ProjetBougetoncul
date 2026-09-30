@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mya/application/sync/sync_ui_state.dart';
 import 'package:mya/domain/entities/task.dart';
 import 'package:mya/features/quick_add/quick_add_presenter.dart';
+import 'package:mya/features/shared/widgets/cloud_sync_badge.dart';
 import 'package:mya/features/tasks/widgets/task_category_list.dart';
 
 /// Panneau de tâches de la pastille Windows — version complète ou aperçu.
@@ -27,6 +29,7 @@ class TaskPanel extends StatelessWidget {
     this.onSettings,
     this.onExpand,
     this.quickAddHotkeyLabel = 'Ctrl+Alt+Espace',
+    this.syncSnapshot = const CloudSyncSnapshot(state: CloudSyncUiState.local),
   });
 
   final Map<TaskCategoryId, List<Task>> groupedTasks;
@@ -49,6 +52,7 @@ class TaskPanel extends StatelessWidget {
   final VoidCallback? onSettings;
   final VoidCallback? onExpand;
   final String quickAddHotkeyLabel;
+  final CloudSyncSnapshot syncSnapshot;
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +97,7 @@ class TaskPanel extends StatelessWidget {
               onSettings: onSettings,
               onExpand: onExpand,
               compact: isPreview,
+              syncSnapshot: syncSnapshot,
             ),
             if (!isPreview) const QuickAddInlineBar(),
             Expanded(
@@ -131,6 +136,7 @@ class _PanelHeader extends StatelessWidget {
     this.onSettings,
     this.onExpand,
     this.compact = false,
+    this.syncSnapshot = const CloudSyncSnapshot(state: CloudSyncUiState.local),
   });
 
   final bool alwaysOnTop;
@@ -140,6 +146,7 @@ class _PanelHeader extends StatelessWidget {
   final VoidCallback? onSettings;
   final VoidCallback? onExpand;
   final bool compact;
+  final CloudSyncSnapshot syncSnapshot;
 
   @override
   Widget build(BuildContext context) {
@@ -160,6 +167,10 @@ class _PanelHeader extends StatelessWidget {
               fontSize: compact ? 14 : null,
             ),
           ),
+          if (syncSnapshot.showsConnectedBadge) ...[
+            const SizedBox(width: 8),
+            CloudSyncStatusChip(snapshot: syncSnapshot, compact: compact),
+          ],
           const Spacer(),
           if (onSettings != null)
             IconButton(

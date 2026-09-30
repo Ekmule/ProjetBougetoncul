@@ -53,7 +53,10 @@ CREATE INDEX idx_tasks_user_status    ON tasks (user_id, status) WHERE deleted_a
 CREATE INDEX idx_tasks_user_updated   ON tasks (user_id, updated_at DESC);
 CREATE INDEX idx_tasks_reminder       ON tasks (reminder_at) WHERE reminder_at IS NOT NULL AND status = 'active';
 
--- Mise à jour automatique de updated_at
+-- Mise à jour automatique de updated_at pour les paramètres serveur.
+-- Les tâches conservent le timestamp produit par l'appareil pour permettre
+-- la résolution Last Write Wins entre plusieurs appareils hors ligne. Le RPC
+-- borne toutefois les dates futures à l'heure serveur.
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -61,11 +64,6 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
-CREATE TRIGGER tasks_updated_at
-    BEFORE UPDATE ON tasks
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
 
 -- =============================================================================
 -- TABLE : user_settings
@@ -100,7 +98,7 @@ BEGIN
     ON CONFLICT (user_id) DO NOTHING;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
@@ -151,6 +149,73 @@ CREATE POLICY "user_settings_update_own"
 CREATE POLICY "user_settings_insert_own"
     ON user_settings FOR INSERT
     WITH CHECK (auth.uid() = user_id);
+
+-- Upsert atomique protégé par LWW. L'identité vient du JWT.
+CREATE OR REPLACE FUNCTION sync_task(p_task JSONB)
+RETURNS tasks
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public
+AS $$
+DECLARE
+    canonical tasks;
+    task_id UUID := (p_task->>'id')::UUID;
+    task_updated_at TIMESTAMPTZ :=
+        LEAST((p_task->>'updated_at')::TIMESTAMPTZ, clock_timestamp());
+BEGIN
+    IF auth.uid() IS NULL THEN
+        RAISE EXCEPTION 'Authentification requise';
+    END IF;
+
+    INSERT INTO tasks (
+        id, user_id, title, status, category, planned_date, reminder_at,
+        sort_order, sync_version, created_at, updated_at, completed_at,
+        deleted_at
+    )
+    VALUES (
+        task_id, auth.uid(), p_task->>'title',
+        (p_task->>'status')::task_status,
+        (p_task->>'category')::task_category,
+        (p_task->>'planned_date')::DATE,
+        (p_task->>'reminder_at')::TIMESTAMPTZ,
+        COALESCE((p_task->>'sort_order')::INTEGER, 0),
+        COALESCE((p_task->>'sync_version')::INTEGER, 1),
+        (p_task->>'created_at')::TIMESTAMPTZ,
+        task_updated_at,
+        (p_task->>'completed_at')::TIMESTAMPTZ,
+        (p_task->>'deleted_at')::TIMESTAMPTZ
+    )
+    ON CONFLICT (id) DO UPDATE SET
+        title = EXCLUDED.title,
+        status = EXCLUDED.status,
+        category = EXCLUDED.category,
+        planned_date = EXCLUDED.planned_date,
+        reminder_at = EXCLUDED.reminder_at,
+        sort_order = EXCLUDED.sort_order,
+        sync_version = EXCLUDED.sync_version,
+        created_at = EXCLUDED.created_at,
+        updated_at = EXCLUDED.updated_at,
+        completed_at = EXCLUDED.completed_at,
+        deleted_at = EXCLUDED.deleted_at
+    WHERE tasks.user_id = auth.uid()
+      AND EXCLUDED.updated_at > tasks.updated_at
+    RETURNING * INTO canonical;
+
+    IF canonical.id IS NULL THEN
+        SELECT * INTO canonical
+        FROM tasks
+        WHERE id = task_id AND user_id = auth.uid();
+    END IF;
+
+    IF canonical.id IS NULL THEN
+        RAISE EXCEPTION 'Tâche inaccessible: %', task_id;
+    END IF;
+
+    RETURN canonical;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION sync_task(JSONB) TO authenticated;
 
 -- =============================================================================
 -- REALTIME

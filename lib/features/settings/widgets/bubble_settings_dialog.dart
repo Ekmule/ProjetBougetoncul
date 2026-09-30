@@ -2,13 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mya/application/authentication/auth_display.dart';
 import 'package:mya/application/authentication/auth_providers.dart';
+import 'package:mya/application/sync/sync_status_provider.dart';
 import 'package:mya/application/bubble/always_on_top_service.dart';
 import 'package:mya/application/bubble/bubble_appearance_notifier.dart';
+import 'package:mya/application/bubble/bubble_position.dart';
 import 'package:mya/core/constants/window_constants.dart';
 import 'package:mya/data/providers/device_settings_providers.dart';
 import 'package:mya/features/settings/widgets/bubble_icon_gallery.dart';
+import 'package:mya/features/settings/widgets/bubble_position_picker.dart';
 import 'package:mya/features/settings/widgets/auth_settings_dialog.dart';
 import 'package:mya/features/settings/widgets/hotkey_settings_dialog.dart';
 import 'package:mya/application/hotkeys/global_hotkey_service.dart';
@@ -55,6 +57,10 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
   late bool _alwaysOnTop;
   late double _bubbleSize;
   late String _selectedIconId;
+  late bool _freeDragEnabled;
+  BubbleAnchor? _selectedAnchor;
+  String? _selectedDisplayId;
+  List<BubbleDisplay> _displays = const [];
 
   @override
   void initState() {
@@ -65,6 +71,28 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
     _alwaysOnTop = ref.read(alwaysOnTopServiceProvider).isEnabled;
     _bubbleSize = appearance.size;
     _selectedIconId = appearance.iconId;
+    _freeDragEnabled = settings.freeDragEnabled;
+    _selectedAnchor = settings.anchor;
+    _selectedDisplayId = settings.displayId;
+    unawaited(_loadDisplays());
+  }
+
+  Future<void> _loadDisplays() async {
+    final displays = await ref.read(windowServiceProvider).getDisplays();
+    if (!mounted) return;
+    setState(() {
+      _displays = displays;
+      final selectedExists = displays.any(
+        (display) => display.id == _selectedDisplayId,
+      );
+      if (!selectedExists) {
+        _selectedDisplayId = displays
+            .where((display) => display.isPrimary)
+            .firstOrNull
+            ?.id;
+        _selectedDisplayId ??= displays.firstOrNull?.id;
+      }
+    });
   }
 
   Future<void> _applyStartup(bool enabled) async {
@@ -88,14 +116,42 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
     await ref.read(bubbleAppearanceProvider.notifier).setIconId(iconId);
   }
 
+  Future<void> _applyAnchor(BubbleAnchor anchor) async {
+    setState(() {
+      _selectedAnchor = anchor;
+      _freeDragEnabled = false;
+    });
+    final store = ref.read(deviceSettingsStoreProvider);
+    await store.saveBubbleFreeDragEnabled(false);
+    await store.saveBubbleAnchor(anchor, displayId: _selectedDisplayId);
+    final position = await ref
+        .read(windowServiceProvider)
+        .moveToAnchor(anchor, displayId: _selectedDisplayId);
+    await store.saveBubblePosition(position);
+  }
+
+  Future<void> _applyDisplay(String? displayId) async {
+    if (displayId == null) return;
+    setState(() => _selectedDisplayId = displayId);
+    await _applyAnchor(_selectedAnchor ?? BubbleAnchor.bottomRight);
+  }
+
+  Future<void> _applyFreeDrag(bool enabled) async {
+    setState(() => _freeDragEnabled = enabled);
+    await ref
+        .read(deviceSettingsStoreProvider)
+        .saveBubbleFreeDragEnabled(enabled);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final authUser = ref.watch(authUserProvider).value;
     final authConfigured = ref.watch(authConfiguredProvider);
+    final syncSnapshot = ref.watch(cloudSyncStatusProvider);
     final hotkeyLabel = ref.watch(globalHotkeyServiceProvider).displayLabel;
-    final preferCloudSync =
-        ref.watch(deviceSettingsStoreProvider).readPreferCloudSync();
+    final preferCloudSync = ref
+        .watch(deviceSettingsStoreProvider)
+        .readPreferCloudSync();
     final maxWidth = MediaQuery.sizeOf(context).width - 48;
     final dialogWidth = maxWidth.clamp(280.0, 420.0);
 
@@ -131,10 +187,7 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
                 ),
                 const SizedBox(height: 8),
               ],
-              Text(
-                'Pastille',
-                style: theme.textTheme.titleSmall,
-              ),
+              Text('Pastille', style: theme.textTheme.titleSmall),
               const SizedBox(height: 8),
               BubbleIconGallery(
                 selectedIconId: _selectedIconId,
@@ -177,6 +230,21 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
                 label: '${_bubbleSize.toInt()} px',
                 onChanged: _applyBubbleSize,
               ),
+              const SizedBox(height: 8),
+              if (_displays.isEmpty)
+                const Center(child: CircularProgressIndicator())
+              else
+                BubblePositionPicker(
+                  displays: _displays,
+                  selectedDisplayId: _selectedDisplayId,
+                  selectedAnchor: _selectedAnchor,
+                  freeDragEnabled: _freeDragEnabled,
+                  onDisplayChanged: (displayId) =>
+                      unawaited(_applyDisplay(displayId)),
+                  onAnchorChanged: (anchor) => unawaited(_applyAnchor(anchor)),
+                  onFreeDragChanged: (enabled) =>
+                      unawaited(_applyFreeDrag(enabled)),
+                ),
               const Divider(height: 24),
               _SettingsLinkTile(
                 icon: Icons.keyboard_outlined,
@@ -193,8 +261,7 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
               _SettingsLinkTile(
                 icon: Icons.person_outline,
                 title: 'Compte et synchronisation',
-                subtitle: AuthDisplay.accountSummary(
-                  authUser,
+                subtitle: syncSnapshot.accountAndSyncSummary(
                   isConfigured: authConfigured,
                 ),
                 onTap: () async {
@@ -254,9 +321,8 @@ class _SettingsLinkTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white70,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: Colors.white70),
                   ),
                 ],
               ),

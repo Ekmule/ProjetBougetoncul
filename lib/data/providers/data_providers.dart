@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mya/application/authentication/auth_providers.dart';
 import 'package:mya/data/local/database.dart';
 import 'package:mya/data/repositories/drift_task_repository.dart';
 import 'package:mya/domain/repositories/task_repository.dart';
@@ -11,5 +12,9 @@ final appDatabaseProvider = Provider<AppDatabase>((ref) {
 });
 
 final taskRepositoryProvider = Provider<TaskRepository>((ref) {
-  return DriftTaskRepository(ref.watch(appDatabaseProvider));
+  return DriftTaskRepository(
+    ref.watch(appDatabaseProvider),
+    activeUserId: ref.watch(authUserProvider).value?.id,
+    filterByOwner: true,
+  );
 });

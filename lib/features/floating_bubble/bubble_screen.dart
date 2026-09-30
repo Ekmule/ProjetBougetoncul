@@ -19,6 +19,7 @@ import 'package:mya/features/quick_add/quick_add_presenter.dart';
 import 'package:mya/features/tasks/widgets/task_edit_dialog.dart';
 import 'package:mya/application/authentication/auth_display.dart';
 import 'package:mya/application/authentication/auth_providers.dart';
+import 'package:mya/application/sync/sync_status_provider.dart';
 import 'package:mya/application/hotkeys/global_hotkey_notifier.dart';
 import 'package:mya/application/hotkeys/global_hotkey_service.dart';
 import 'package:mya/features/settings/widgets/auth_settings_dialog.dart';
@@ -48,6 +49,7 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
   Timer? _hoverTimer;
   Timer? _collapseTimer;
   var _isApplyingViewMode = false;
+  var _isUpdatingFreeMove = false;
   var _modalDialogsOpen = 0;
   DateTime? _previewHoverGraceUntil;
 
@@ -201,6 +203,7 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
     }
 
     if (mounted) {
+      setState(() {});
       await _refreshTrayMenu();
     }
   }
@@ -416,13 +419,23 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
     unawaited(_toggleAlwaysOnTop());
   }
 
+  Future<void> _onPanStart(DragStartDetails details) async {
+    await _windowService.beginFreeMove();
+    await ref.read(deviceSettingsStoreProvider).saveBubbleAnchor(null);
+  }
+
   Future<void> _onPanUpdate(DragUpdateDetails details) async {
-    await _windowService.moveBy(details.delta);
+    if (_isUpdatingFreeMove) return;
+    _isUpdatingFreeMove = true;
+    try {
+      await _windowService.updateFreeMove();
+    } finally {
+      _isUpdatingFreeMove = false;
+    }
   }
 
   Future<void> _onPanEnd(DragEndDetails details) async {
-    await _windowService.snapToEdgeIfNeeded();
-    final position = await _windowService.getPosition();
+    final position = await _windowService.endFreeMove();
     await ref.read(deviceSettingsStoreProvider).saveBubblePosition(position);
   }
 
@@ -461,6 +474,10 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
     final appearance = ref.watch(bubbleAppearanceProvider);
     final bubbleSize = appearance.size;
     final bubbleAssetPath = appearance.assetPath;
+    final freeDragEnabled = ref
+        .read(deviceSettingsStoreProvider)
+        .readBubbleSettings()
+        .freeDragEnabled;
 
     ref.listen(authUserProvider, (previous, next) async {
       if (previous?.value?.id != next.value?.id) {
@@ -503,6 +520,7 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
 
     final uiState = ref.watch(bubbleUiProvider);
     final listState = ref.watch(taskListStateProvider);
+    final syncSnapshot = ref.watch(cloudSyncStatusProvider);
     final now = DateTime.now();
     const dateService = TaskDateService();
 
@@ -549,13 +567,15 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
                     child: GestureDetector(
                       onTap: _onBubbleTap,
                       onDoubleTap: _onBubbleDoubleTap,
-                      onPanUpdate: _onPanUpdate,
-                      onPanEnd: _onPanEnd,
+                      onPanStart: freeDragEnabled ? _onPanStart : null,
+                      onPanUpdate: freeDragEnabled ? _onPanUpdate : null,
+                      onPanEnd: freeDragEnabled ? _onPanEnd : null,
                       child: BubbleButton(
                         alwaysOnTop: uiState.alwaysOnTop,
                         size: bubbleSize,
                         assetPath: bubbleAssetPath,
                         animate: hasOverdueOrTodayTask,
+                        syncSnapshot: syncSnapshot,
                       ),
                     ),
                   ),
@@ -596,6 +616,7 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
                         ref.read(bubbleUiProvider.notifier).hideBubble();
                         unawaited(_refreshTrayMenu());
                       },
+                      syncSnapshot: syncSnapshot,
                       quickAddHotkeyLabel: hotkeyLabel,
                     ),
                   ),
@@ -638,6 +659,7 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
                         ref.read(bubbleUiProvider.notifier).hideBubble();
                         unawaited(_refreshTrayMenu());
                       },
+                      syncSnapshot: syncSnapshot,
                       quickAddHotkeyLabel: hotkeyLabel,
                     ),
                   ),

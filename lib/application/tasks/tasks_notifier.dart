@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mya/application/authentication/auth_providers.dart';
 import 'package:mya/application/reminders/reminder_providers.dart';
+import 'package:mya/application/sync/sync_providers.dart';
 import 'package:mya/application/tasks/task_category_service_provider.dart';
 import 'package:mya/application/tasks/task_date_service_provider.dart';
 import 'package:mya/application/tasks/task_history_providers.dart';
+import 'package:mya/core/utils/app_logger.dart';
 import 'package:mya/core/utils/debug_trace.dart';
 import 'package:mya/data/providers/data_providers.dart';
 import 'package:mya/domain/entities/task.dart';
@@ -29,20 +32,17 @@ class TasksNotifier extends Notifier<List<Task>> {
   final _uuid = const Uuid();
   StreamSubscription<List<Task>>? _subscription;
   var _isPurgingHistory = false;
-  var _initialReminderSyncDone = false;
 
   TaskRepository get _repository => ref.read(taskRepositoryProvider);
 
   @override
   List<Task> build() {
+    final repository = ref.watch(taskRepositoryProvider);
     _subscription?.cancel();
-    _subscription = _repository.watchTasks().listen((tasks) {
+    _subscription = repository.watchTasks().listen((tasks) {
       state = tasks;
       unawaited(_purgeExpiredHistory(tasks));
-      if (!_initialReminderSyncDone) {
-        _initialReminderSyncDone = true;
-        unawaited(ref.read(reminderServiceProvider).syncAll(tasks));
-      }
+      unawaited(ref.read(reminderServiceProvider).syncAll(tasks));
     });
     ref.onDispose(() => _subscription?.cancel());
 
@@ -58,8 +58,10 @@ class TasksNotifier extends Notifier<List<Task>> {
       id: _uuid.v4(),
       title: title,
       category: category,
+      userId: ref.read(authUserProvider).value?.id,
     );
     await _repository.addTask(task);
+    _requestSync();
     DebugTrace.log('tasks', 'created', {
       'id': task.id,
       'category': task.category.name,
@@ -74,6 +76,7 @@ class TasksNotifier extends Notifier<List<Task>> {
     final trimmed = title.trim();
     if (trimmed.isEmpty || trimmed == task.title) return;
     await _repository.updateTask(task.touch(title: trimmed));
+    _requestSync();
     DebugTrace.log('tasks', 'title updated', {'id': id});
   }
 
@@ -83,6 +86,7 @@ class TasksNotifier extends Notifier<List<Task>> {
     if (task == null || !task.isActive) return;
     final updated = task.complete();
     await _repository.updateTask(updated);
+    _requestSync();
     await ref.read(reminderServiceProvider).syncForTask(updated);
     DebugTrace.log('tasks', 'completed', {'id': id});
   }
@@ -93,6 +97,7 @@ class TasksNotifier extends Notifier<List<Task>> {
     if (task == null || !task.isCompleted) return;
     final updated = task.reopen();
     await _repository.updateTask(updated);
+    _requestSync();
     await ref.read(reminderServiceProvider).syncForTask(updated);
     DebugTrace.log('tasks', 'reopened', {'id': id});
   }
@@ -102,6 +107,7 @@ class TasksNotifier extends Notifier<List<Task>> {
     final task = await _repository.findById(id);
     if (task == null) return;
     await _repository.deleteTask(id);
+    _requestSync();
     await ref.read(reminderServiceProvider).cancelForTaskId(id);
     DebugTrace.log('tasks', 'deleted', {'id': id});
   }
@@ -116,6 +122,7 @@ class TasksNotifier extends Notifier<List<Task>> {
     if (updated == task) return;
 
     await _repository.updateTask(updated);
+    _requestSync();
     DebugTrace.log('tasks', 'category changed', {
       'id': id,
       'category': category.name,
@@ -129,6 +136,7 @@ class TasksNotifier extends Notifier<List<Task>> {
 
     final dateService = ref.read(taskDateServiceProvider);
     await _repository.updateTask(dateService.setPlannedDate(task, date));
+    _requestSync();
   }
 
   /// Retire la date planifiée d'une tâche.
@@ -141,6 +149,7 @@ class TasksNotifier extends Notifier<List<Task>> {
     if (updated == task) return;
 
     await _repository.updateTask(updated);
+    _requestSync();
   }
 
   /// Programme un rappel notification (date + heure).
@@ -151,6 +160,7 @@ class TasksNotifier extends Notifier<List<Task>> {
     final reminderService = ref.read(taskReminderServiceProvider);
     final updated = reminderService.setReminder(task, when);
     await _repository.updateTask(updated);
+    _requestSync();
     await ref.read(reminderServiceProvider).syncForTask(updated);
   }
 
@@ -164,6 +174,7 @@ class TasksNotifier extends Notifier<List<Task>> {
     if (updated == task) return;
 
     await _repository.updateTask(updated);
+    _requestSync();
     await ref.read(reminderServiceProvider).syncForTask(updated);
   }
 
@@ -185,8 +196,25 @@ class TasksNotifier extends Notifier<List<Task>> {
         await _repository.deleteTask(task.id);
         await ref.read(reminderServiceProvider).cancelForTaskId(task.id);
       }
+      if (expired.isNotEmpty) _requestSync();
     } finally {
       _isPurgingHistory = false;
     }
+  }
+
+  void _requestSync() {
+    if (ref.read(authUserProvider).value == null) return;
+    unawaited(
+      ref.read(syncServiceProvider).syncNow().catchError((
+        Object error,
+        StackTrace stackTrace,
+      ) {
+        appLogger.w(
+          'Synchronisation après modification impossible',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }),
+    );
   }
 }

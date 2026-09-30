@@ -36,6 +36,8 @@ desktop.ini
 supabase/.env
 **/secrets/
 **/credentials.json
+**/client_secret_*.json
+Sauvegarde/
 
 # Logs locaux
 *.log

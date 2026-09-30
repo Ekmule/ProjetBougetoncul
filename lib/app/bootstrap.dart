@@ -101,6 +101,8 @@ class AppBootstrap {
       );
       await windowService.initializeBubbleWindow(
         initialPosition: bubbleSettings.position,
+        initialAnchor: bubbleSettings.anchor,
+        initialDisplayId: bubbleSettings.displayId,
         alwaysOnTop: bubbleSettings.alwaysOnTop,
       );
 

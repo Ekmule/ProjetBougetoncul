@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:mya/application/bubble/bubble_device_settings.dart';
+import 'package:mya/application/bubble/bubble_position.dart';
 import 'package:mya/application/hotkeys/global_hotkey_codec.dart';
 import 'package:mya/core/constants/bubble_icon_catalog.dart';
 import 'package:mya/core/constants/device_preference_keys.dart';
@@ -19,6 +20,12 @@ class DeviceSettingsStore {
 
     return BubbleDeviceSettings(
       position: x != null && y != null ? Offset(x, y) : null,
+      anchor: BubbleAnchor.fromName(
+        _prefs.getString(DevicePreferenceKeys.bubbleAnchor),
+      ),
+      displayId: _prefs.getString(DevicePreferenceKeys.bubbleDisplayId),
+      freeDragEnabled:
+          _prefs.getBool(DevicePreferenceKeys.bubbleFreeDragEnabled) ?? false,
       bubbleVisible: _prefs.getBool(DevicePreferenceKeys.bubbleVisible) ?? true,
       alwaysOnTop: _prefs.getBool(DevicePreferenceKeys.alwaysOnTop) ?? true,
       startupEnabled:
@@ -35,6 +42,27 @@ class DeviceSettingsStore {
   Future<void> saveBubblePosition(Offset position) async {
     await _prefs.setDouble(DevicePreferenceKeys.bubbleX, position.dx);
     await _prefs.setDouble(DevicePreferenceKeys.bubbleY, position.dy);
+  }
+
+  Future<void> saveBubbleAnchor(
+    BubbleAnchor? anchor, {
+    String? displayId,
+  }) async {
+    if (anchor == null) {
+      await _prefs.remove(DevicePreferenceKeys.bubbleAnchor);
+    } else {
+      await _prefs.setString(DevicePreferenceKeys.bubbleAnchor, anchor.name);
+    }
+
+    if (displayId == null) {
+      await _prefs.remove(DevicePreferenceKeys.bubbleDisplayId);
+    } else {
+      await _prefs.setString(DevicePreferenceKeys.bubbleDisplayId, displayId);
+    }
+  }
+
+  Future<void> saveBubbleFreeDragEnabled(bool enabled) async {
+    await _prefs.setBool(DevicePreferenceKeys.bubbleFreeDragEnabled, enabled);
   }
 
   Future<void> saveBubbleVisible(bool visible) async {

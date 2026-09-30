@@ -60,10 +60,18 @@ if ($BumpBuild) {
 }
 
 if (-not $SkipBuild) {
+    $DartDefineArgs = @()
+    $EnvFile = Join-Path $ProjectRoot ".env.json"
+    if (Test-Path $EnvFile) {
+        Write-Host "==> Supabase : .env.json détecté" -ForegroundColor Yellow
+        $DartDefineArgs += "--dart-define-from-file=$EnvFile"
+    }
+
     Write-Host "==> flutter build windows --release"
     & $Flutter build windows --release `
         --build-name $versionInfo.Name `
-        --build-number $versionInfo.Build
+        --build-number $versionInfo.Build `
+        @DartDefineArgs
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 

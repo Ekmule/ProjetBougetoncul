@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mya/application/authentication/auth_exception.dart';
 import 'package:mya/application/authentication/auth_display.dart';
 import 'package:mya/application/authentication/auth_providers.dart';
+import 'package:mya/application/sync/sync_status_provider.dart';
 import 'package:mya/domain/entities/mya_auth_provider.dart';
+import 'package:mya/features/shared/widgets/cloud_sync_badge.dart';
 
 /// Connexion / déconnexion OAuth Supabase (D13).
 class AuthSettingsDialog extends ConsumerStatefulWidget {
@@ -29,16 +31,14 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
     setState(() {
       _busy = true;
       _error = null;
-      _info =
-          'Un navigateur va s\'ouvrir. Revenez ici après la connexion.';
+      _info = 'Un navigateur va s\'ouvrir. Revenez ici après la connexion.';
     });
 
     try {
       await ref.read(authServiceProvider).signInWithProvider(provider);
       if (!mounted) return;
       setState(() {
-        _info =
-            'Terminez la connexion dans le navigateur, puis revenez à MYA.';
+        _info = 'Terminez la connexion dans le navigateur, puis revenez à MYA.';
       });
     } on AuthNotConfiguredException catch (error) {
       setState(() => _error = error.message);
@@ -76,6 +76,7 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
     final configured = ref.watch(authConfiguredProvider);
     final authAsync = ref.watch(authUserProvider);
     final user = authAsync.value;
+    final syncSnapshot = ref.watch(cloudSyncStatusProvider);
 
     ref.listen(authUserProvider, (previous, next) {
       final signedIn = next.value != null;
@@ -93,12 +94,13 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              AuthDisplay.accountSummary(
-                user,
-                isConfigured: configured,
-              ),
+              AuthDisplay.accountSummary(user, isConfigured: configured),
               style: Theme.of(context).textTheme.titleSmall,
             ),
+            if (syncSnapshot.showsConnectedBadge) ...[
+              const SizedBox(height: 8),
+              CloudSyncStatusChip(snapshot: syncSnapshot),
+            ],
             const SizedBox(height: 12),
             const Text(
               'MYA fonctionne sans compte. Connectez-vous uniquement '
@@ -116,7 +118,7 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
             ],
             if (configured && user == null) ...[
               const SizedBox(height: 16),
-              for (final provider in MyaAuthProvider.values)
+              for (final provider in MyaAuthProvider.supportedInUi)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: OutlinedButton(
@@ -134,10 +136,7 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
             ],
             if (_info != null) ...[
               const SizedBox(height: 12),
-              Text(
-                _info!,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              Text(_info!, style: Theme.of(context).textTheme.bodySmall),
             ],
             if (_error != null) ...[
               const SizedBox(height: 12),

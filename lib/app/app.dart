@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mya/app/router.dart';
 import 'package:mya/app/theme.dart';
+import 'package:mya/application/sync/sync_providers.dart';
 
 /// Racine de l'interface Flutter MYA.
 class MyaApp extends ConsumerWidget {
@@ -9,6 +10,7 @@ class MyaApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(syncLifecycleProvider);
     final router = ref.watch(goRouterProvider);
 
     return MaterialApp.router(

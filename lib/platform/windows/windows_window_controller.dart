@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:mya/application/bubble/bubble_position.dart';
 import 'package:mya/core/constants/window_constants.dart';
 import 'package:mya/features/floating_bubble/bubble_debug.dart';
 import 'package:mya/platform/window_service.dart';
@@ -8,7 +11,7 @@ import 'package:window_manager/window_manager.dart';
 /// Contrôle la fenêtre native Windows (taille, position, Always-on-Top).
 ///
 /// Tout appel à window_manager passe par cette classe — jamais depuis un widget.
-class WindowsWindowController implements WindowService {
+class WindowsWindowController implements WindowService, ScreenListener {
   WindowsWindowController({
     double bubbleSize = WindowConstants.defaultBubbleSize,
   }) : _bubbleSize = bubbleSize,
@@ -18,17 +21,24 @@ class WindowsWindowController implements WindowService {
   var _alwaysOnTop = true;
   double _bubbleSize;
   Size _lastSize;
+  BubbleAnchor? _preferredAnchor;
+  String? _preferredDisplayId;
+  Offset? _freeMovePointerOffset;
 
   /// Initialise la pastille : fenêtre petite, opaque, sans bordure.
   @override
   Future<void> initializeBubbleWindow({
     Offset? initialPosition,
+    BubbleAnchor? initialAnchor,
+    String? initialDisplayId,
     bool alwaysOnTop = true,
   }) async {
     await windowManager.ensureInitialized();
 
     _alwaysOnTop = alwaysOnTop;
-    final position = initialPosition ?? await _defaultBubblePosition();
+    _preferredAnchor = initialAnchor;
+    _preferredDisplayId = initialDisplayId;
+    final position = await _resolveInitialPosition(initialPosition);
     _lastPosition = position;
     _lastSize = Size(_bubbleSize, _bubbleSize);
 
@@ -54,6 +64,7 @@ class WindowsWindowController implements WindowService {
       await windowManager.show();
       await windowManager.focus();
     });
+    screenRetriever.addListener(this);
   }
 
   /// Adapte la taille de la fenêtre au mode d'affichage (pastille / aperçu / panneau).
@@ -163,35 +174,73 @@ class WindowsWindowController implements WindowService {
     await windowManager.setAlwaysOnTop(_alwaysOnTop);
   }
 
-  /// Déplace la fenêtre (appelé pendant le glisser-déposer de la pastille).
   @override
-  Future<void> moveBy(Offset delta) async {
-    final position = await windowManager.getPosition();
-    final newPosition = position + delta;
-    await windowManager.setPosition(newPosition);
-    _lastPosition = newPosition;
+  Future<List<BubbleDisplay>> getDisplays() async {
+    final nativeDisplays = await screenRetriever.getAllDisplays();
+    final primary = await screenRetriever.getPrimaryDisplay();
+
+    return [
+      for (var index = 0; index < nativeDisplays.length; index++)
+        _toBubbleDisplay(
+          nativeDisplays[index],
+          index: index,
+          primaryId: primary.id,
+        ),
+    ];
   }
 
-  /// Accroche la pastille au bord gauche ou droit si elle est assez proche.
   @override
-  Future<void> snapToEdgeIfNeeded() async {
-    final display = await screenRetriever.getPrimaryDisplay();
-    final visibleSize = display.visibleSize ?? display.size;
-    final position = await windowManager.getPosition();
+  Future<Offset> moveToAnchor(BubbleAnchor anchor, {String? displayId}) async {
+    final displays = await getDisplays();
+    final display = _displayById(displays, displayId);
     final size = await windowManager.getSize();
+    final position = BubblePositioning.anchoredPosition(
+      workArea: display.workArea,
+      windowSize: size,
+      anchor: anchor,
+      margin: WindowConstants.screenMargin,
+    );
 
-    var newX = position.dx;
+    _preferredAnchor = anchor;
+    _preferredDisplayId = display.id;
+    await windowManager.setPosition(position);
+    _lastPosition = position;
+    return position;
+  }
 
-    if (position.dx < WindowConstants.snapThreshold) {
-      newX = WindowConstants.screenMargin;
-    } else if (position.dx + size.width >
-        visibleSize.width - WindowConstants.snapThreshold) {
-      newX = visibleSize.width - size.width - WindowConstants.screenMargin;
-    }
+  @override
+  Future<void> beginFreeMove() async {
+    final cursor = await screenRetriever.getCursorScreenPoint();
+    final position = await windowManager.getPosition();
+    _freeMovePointerOffset = cursor - position;
+    _preferredAnchor = null;
+    _preferredDisplayId = null;
+  }
 
-    final newPosition = Offset(newX, position.dy);
-    await windowManager.setPosition(newPosition);
-    _lastPosition = newPosition;
+  @override
+  Future<void> updateFreeMove() async {
+    final pointerOffset = _freeMovePointerOffset;
+    if (pointerOffset == null) return;
+
+    final cursor = await screenRetriever.getCursorScreenPoint();
+    final size = await windowManager.getSize();
+    final displays = await getDisplays();
+    final display = BubblePositioning.nearestDisplay(cursor, displays);
+    final position = BubblePositioning.clampToWorkArea(
+      cursor - pointerOffset,
+      windowSize: size,
+      workArea: display.workArea,
+    );
+
+    await windowManager.setPosition(position);
+    _lastPosition = position;
+  }
+
+  @override
+  Future<Offset> endFreeMove() async {
+    await updateFreeMove();
+    _freeMovePointerOffset = null;
+    return getPosition();
   }
 
   /// Masque complètement la fenêtre.
@@ -203,6 +252,7 @@ class WindowsWindowController implements WindowService {
   /// Réaffiche la fenêtre.
   @override
   Future<void> show() async {
+    await _restoreSafePosition();
     await windowManager.show();
     await _ensureAlwaysOnTop();
     await windowManager.focus();
@@ -219,34 +269,127 @@ class WindowsWindowController implements WindowService {
   Future<void> setPosition(Offset position) async {
     await windowManager.setPosition(position);
     _lastPosition = position;
+    _preferredAnchor = null;
+    _preferredDisplayId = null;
   }
 
-  Future<Offset> _defaultBubblePosition() async {
-    final display = await screenRetriever.getPrimaryDisplay();
-    final visibleSize = display.visibleSize ?? display.size;
-    final scale = display.scaleFactor ?? 1.0;
+  @override
+  void onScreenEvent(String eventName) {
+    unawaited(_restoreSafePosition());
+  }
 
-    // Position physique en pixels (tenir compte du scale DPI).
-    final bubblePx = _bubbleSize * scale;
-    final marginPx = WindowConstants.screenMargin * scale;
+  Future<Offset> _resolveInitialPosition(Offset? savedPosition) async {
+    final displays = await getDisplays();
+    final size = Size(_bubbleSize, _bubbleSize);
 
-    final x = visibleSize.width - bubblePx - marginPx;
-    final y = visibleSize.height * 0.8 - bubblePx / 2;
+    if (_preferredAnchor case final anchor?) {
+      final display = _displayById(displays, _preferredDisplayId);
+      _preferredDisplayId = display.id;
+      return BubblePositioning.anchoredPosition(
+        workArea: display.workArea,
+        windowSize: size,
+        anchor: anchor,
+        margin: WindowConstants.screenMargin,
+      );
+    }
 
-    return Offset(
-      x / scale,
-      (y / scale).clamp(
-        WindowConstants.screenMargin,
-        visibleSize.height / scale,
-      ),
+    if (savedPosition != null) {
+      final center = savedPosition + Offset(size.width / 2, size.height / 2);
+      final display = BubblePositioning.nearestDisplay(center, displays);
+      return BubblePositioning.clampToWorkArea(
+        savedPosition,
+        windowSize: size,
+        workArea: display.workArea,
+      );
+    }
+
+    final primary = _displayById(displays, null);
+    return BubblePositioning.anchoredPosition(
+      workArea: primary.workArea,
+      windowSize: size,
+      anchor: BubbleAnchor.bottomRight,
+      margin: WindowConstants.screenMargin,
+    );
+  }
+
+  Future<void> _restoreSafePosition() async {
+    final displays = await getDisplays();
+    final size = await windowManager.getSize();
+
+    final Offset position;
+    if (_preferredAnchor case final anchor?) {
+      final display = _displayById(displays, _preferredDisplayId);
+      _preferredDisplayId = display.id;
+      position = BubblePositioning.anchoredPosition(
+        workArea: display.workArea,
+        windowSize: size,
+        anchor: anchor,
+        margin: WindowConstants.screenMargin,
+      );
+    } else {
+      final current = await windowManager.getPosition();
+      final center = current + Offset(size.width / 2, size.height / 2);
+      final display = BubblePositioning.nearestDisplay(center, displays);
+      position = BubblePositioning.clampToWorkArea(
+        current,
+        windowSize: size,
+        workArea: display.workArea,
+      );
+    }
+
+    await windowManager.setPosition(position);
+    _lastPosition = position;
+  }
+
+  BubbleDisplay _displayById(List<BubbleDisplay> displays, String? displayId) {
+    if (displayId != null) {
+      for (final display in displays) {
+        if (display.id == displayId) return display;
+      }
+    }
+    return displays.firstWhere(
+      (display) => display.isPrimary,
+      orElse: () => displays.first,
+    );
+  }
+
+  BubbleDisplay _toBubbleDisplay(
+    Display display, {
+    required int index,
+    required String primaryId,
+  }) {
+    final position = display.visiblePosition ?? Offset.zero;
+    final size = display.visibleSize ?? display.size;
+    return BubbleDisplay(
+      id: display.id,
+      name: display.name?.trim().isNotEmpty == true
+          ? display.name!.trim()
+          : 'Écran ${index + 1}',
+      workArea: position & size,
+      isPrimary: display.id == primaryId,
     );
   }
 
   Offset _adjustPositionForResize(Offset current, Size fromSize, Size toSize) {
-    // Ancre le coin bas-droit : la pastille reste sous le curseur au survol.
-    return Offset(
-      current.dx + fromSize.width - toSize.width,
-      current.dy + fromSize.height - toSize.height,
-    );
+    final anchor = _preferredAnchor;
+    if (anchor == null) {
+      // Compatibilité avec les anciennes positions libres.
+      return Offset(
+        current.dx + fromSize.width - toSize.width,
+        current.dy + fromSize.height - toSize.height,
+      );
+    }
+
+    final dx = switch (anchor.horizontal) {
+      -1 => 0.0,
+      0 => (fromSize.width - toSize.width) / 2,
+      _ => fromSize.width - toSize.width,
+    };
+    final dy = switch (anchor.vertical) {
+      -1 => 0.0,
+      0 => (fromSize.height - toSize.height) / 2,
+      _ => fromSize.height - toSize.height,
+    };
+    return Offset(current.dx + dx, current.dy + dy);
   }
 }

@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
+  connectivity_plus
   flutter_alone
   hotkey_manager_windows
   screen_retriever_windows

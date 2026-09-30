@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mya/application/sync/sync_ui_state.dart';
 import 'package:mya/core/constants/window_constants.dart';
+import 'package:mya/features/shared/widgets/cloud_sync_badge.dart';
 
 /// Pastille MYA — image cliquable remplissant la fenêtre.
 class BubbleButton extends StatefulWidget {
@@ -9,12 +11,14 @@ class BubbleButton extends StatefulWidget {
     required this.size,
     required this.assetPath,
     this.animate = false,
+    this.syncSnapshot = const CloudSyncSnapshot(state: CloudSyncUiState.local),
   });
 
   final bool alwaysOnTop;
   final double size;
   final String assetPath;
   final bool animate;
+  final CloudSyncSnapshot syncSnapshot;
 
   @override
   State<BubbleButton> createState() => _BubbleButtonState();
@@ -85,42 +89,58 @@ class _BubbleButtonState extends State<BubbleButton>
         child: SizedBox(
           width: widget.size,
           height: widget.size,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: widget.alwaysOnTop ? Colors.amber : Colors.white24,
-                width: widget.alwaysOnTop ? 3 : 2,
-              ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black54,
-                  blurRadius: 10,
-                  offset: Offset(0, 3),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: widget.alwaysOnTop ? Colors.amber : Colors.white24,
+                    width: widget.alwaysOnTop ? 3 : 2,
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black54,
+                      blurRadius: 10,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: ClipOval(
-              child: Image.asset(
-                widget.assetPath,
-                width: widget.size,
-                height: widget.size,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => ColoredBox(
-                  color: WindowConstants.bubbleColor,
-                  child: Center(
-                    child: Text(
-                      'M',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: widget.size * 0.4,
+                child: ClipOval(
+                  child: Image.asset(
+                    widget.assetPath,
+                    width: widget.size,
+                    height: widget.size,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => ColoredBox(
+                      color: WindowConstants.bubbleColor,
+                      child: Center(
+                        child: Text(
+                          'M',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: widget.size * 0.4,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
+              if (widget.syncSnapshot.showsConnectedBadge)
+                Positioned(
+                  right: widget.size * 0.04,
+                  bottom: widget.size * 0.04,
+                  child: CloudSyncBadge(
+                    snapshot: widget.syncSnapshot,
+                    size: (widget.size * 0.22).clamp(10.0, 16.0),
+                    pulse:
+                        widget.syncSnapshot.state == CloudSyncUiState.syncing,
+                  ),
+                ),
+            ],
           ),
         ),
       ),

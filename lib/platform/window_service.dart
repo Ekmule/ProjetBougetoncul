@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mya/application/bubble/bubble_position.dart';
 
 /// Contrôle la fenêtre native (pastille, panneau, Always-on-Top).
 ///
@@ -6,6 +7,8 @@ import 'package:flutter/material.dart';
 abstract class WindowService {
   Future<void> initializeBubbleWindow({
     Offset? initialPosition,
+    BubbleAnchor? initialAnchor,
+    String? initialDisplayId,
     bool alwaysOnTop = true,
   });
 
@@ -20,9 +23,15 @@ abstract class WindowService {
 
   Future<void> setAlwaysOnTop(bool enabled);
 
-  Future<void> moveBy(Offset delta);
+  Future<List<BubbleDisplay>> getDisplays();
 
-  Future<void> snapToEdgeIfNeeded();
+  Future<Offset> moveToAnchor(BubbleAnchor anchor, {String? displayId});
+
+  Future<void> beginFreeMove();
+
+  Future<void> updateFreeMove();
+
+  Future<Offset> endFreeMove();
 
   Future<void> hide();
 
