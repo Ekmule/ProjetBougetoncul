@@ -14,4 +14,7 @@ abstract final class DevicePreferenceKeys {
   static const trayHintShown = 'tray_hint_shown';
   static const preferCloudSync = 'prefer_cloud_sync';
   static const onboardingCompleted = 'onboarding_completed';
+  static const androidWidgetPinOffered = 'android_widget_pin_offered';
+  static const updateCheckLastAt = 'update_check_last_at';
+  static const updateDismissedVersion = 'update_dismissed_version';
 }

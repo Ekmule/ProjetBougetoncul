@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mya/application/authentication/auth_providers.dart';
+import 'package:mya/application/authentication/auth_service.dart';
 import 'package:mya/application/tasks/task_list_state.dart';
 import 'package:mya/domain/entities/task.dart';
 import 'package:mya/features/tasks/tasks_screen.dart';
@@ -14,6 +16,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          authServiceProvider.overrideWithValue(const NoOpAuthService()),
           taskListStateProvider.overrideWith(
             (ref) => TaskListState(
               grouped: emptyGrouped,

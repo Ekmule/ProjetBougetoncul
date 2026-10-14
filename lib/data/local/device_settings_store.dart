@@ -100,6 +100,14 @@ class DeviceSettingsStore {
     await _prefs.setBool(DevicePreferenceKeys.onboardingCompleted, true);
   }
 
+  bool hasOfferedAndroidWidgetPin() {
+    return _prefs.getBool(DevicePreferenceKeys.androidWidgetPinOffered) ?? false;
+  }
+
+  Future<void> markAndroidWidgetPinOffered() async {
+    await _prefs.setBool(DevicePreferenceKeys.androidWidgetPinOffered, true);
+  }
+
   bool hasSeenTrayHint() {
     return _prefs.getBool(DevicePreferenceKeys.trayHintShown) ?? false;
   }
@@ -127,5 +135,28 @@ class DeviceSettingsStore {
       DevicePreferenceKeys.globalHotkey,
       GlobalHotkeyCodec.encode(hotkey),
     );
+  }
+
+  bool shouldCheckForUpdates({required Duration interval}) {
+    final lastMs = _prefs.getInt(DevicePreferenceKeys.updateCheckLastAt);
+    if (lastMs == null) return true;
+    final elapsed = DateTime.now().millisecondsSinceEpoch - lastMs;
+    return elapsed >= interval.inMilliseconds;
+  }
+
+  Future<void> markUpdateCheckPerformed() async {
+    await _prefs.setInt(
+      DevicePreferenceKeys.updateCheckLastAt,
+      DateTime.now().millisecondsSinceEpoch,
+    );
+  }
+
+  bool isUpdateDismissed(String versionKey) {
+    return _prefs.getString(DevicePreferenceKeys.updateDismissedVersion) ==
+        versionKey;
+  }
+
+  Future<void> dismissUpdateVersion(String versionKey) async {
+    await _prefs.setString(DevicePreferenceKeys.updateDismissedVersion, versionKey);
   }
 }

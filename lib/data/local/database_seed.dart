@@ -15,21 +15,8 @@ abstract final class DatabaseSeeder {
     final samples = [
       Task.createNew(
         id: uuid.v4(),
-        title: 'Faire les portraits',
+        title: 'Créer votre première tâche',
         category: TaskCategoryId.next,
-        plannedDate: now,
-        now: now,
-      ),
-      Task.createNew(
-        id: uuid.v4(),
-        title: 'Corriger le dialogue',
-        category: TaskCategoryId.next,
-        now: now,
-      ),
-      Task.createNew(
-        id: uuid.v4(),
-        title: 'Refaire les icônes',
-        category: TaskCategoryId.someday,
         now: now,
       ),
     ];

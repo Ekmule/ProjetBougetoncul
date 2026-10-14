@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mya_widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="2dp">
+
+    <ImageView
+        android:id="@+id/mya_widget_icon"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/mya_widget_description"
+        android:scaleType="fitCenter"
+        android:src="@drawable/mya_icon_01" />
+
+    <ImageView
+        android:id="@+id/mya_widget_sync_badge"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_gravity="top|end"
+        android:contentDescription="@string/mya_widget_sync_badge"
+        android:src="@drawable/mya_sync_badge"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/mya_widget_today_badge"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_gravity="bottom|start"
+        android:contentDescription="@string/mya_widget_today_badge"
+        android:src="@drawable/mya_today_attention_badge"
+        android:visibility="gone" />
+</FrameLayout>

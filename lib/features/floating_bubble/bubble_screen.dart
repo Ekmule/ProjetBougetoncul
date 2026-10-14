@@ -20,6 +20,8 @@ import 'package:mya/features/tasks/widgets/task_edit_dialog.dart';
 import 'package:mya/application/authentication/auth_display.dart';
 import 'package:mya/application/authentication/auth_providers.dart';
 import 'package:mya/application/sync/sync_status_provider.dart';
+import 'package:mya/application/updates/update_providers.dart';
+import 'package:mya/features/settings/widgets/app_update_dialog.dart';
 import 'package:mya/application/hotkeys/global_hotkey_notifier.dart';
 import 'package:mya/application/hotkeys/global_hotkey_service.dart';
 import 'package:mya/features/settings/widgets/auth_settings_dialog.dart';
@@ -516,6 +518,22 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
       } finally {
         _isApplyingViewMode = false;
       }
+    });
+
+    ref.listen(updateCheckProvider, (previous, next) {
+      final release = next.availableRelease;
+      if (release == null || !mounted) return;
+      if (previous?.availableRelease?.versionKey == release.versionKey) {
+        return;
+      }
+      if (_modalDialogsOpen > 0) return;
+
+      _modalDialogsOpen++;
+      unawaited(
+        AppUpdateDialog.show(context, release: release).whenComplete(() {
+          if (mounted) _modalDialogsOpen--;
+        }),
+      );
     });
 
     final uiState = ref.watch(bubbleUiProvider);

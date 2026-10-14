@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mya/application/authentication/auth_providers.dart';
 import 'package:mya/application/sync/sync_status_provider.dart';
+import 'package:mya/application/updates/update_providers.dart';
+import 'package:mya/features/settings/widgets/app_update_dialog.dart';
 import 'package:mya/application/bubble/always_on_top_service.dart';
 import 'package:mya/application/bubble/bubble_appearance_notifier.dart';
 import 'package:mya/application/bubble/bubble_position.dart';
@@ -148,6 +150,12 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
     final theme = Theme.of(context);
     final authConfigured = ref.watch(authConfiguredProvider);
     final syncSnapshot = ref.watch(cloudSyncStatusProvider);
+    final packageInfo = ref.watch(packageInfoProvider);
+    final installedVersion = packageInfo.maybeWhen(
+      data: (info) =>
+          '${info.version}${info.buildNumber.isEmpty ? '' : ' (build ${info.buildNumber})'}',
+      orElse: () => '…',
+    );
     final hotkeyLabel = ref.watch(globalHotkeyServiceProvider).displayLabel;
     final preferCloudSync = ref
         .watch(deviceSettingsStoreProvider)
@@ -271,6 +279,12 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
                     if (mounted) setState(() {});
                   }
                 },
+              ),
+              _SettingsLinkTile(
+                icon: Icons.system_update_alt_outlined,
+                title: 'Mises à jour',
+                subtitle: 'Version $installedVersion — GitHub Releases',
+                onTap: () => unawaited(AppUpdateSettingsDialog.show(context)),
               ),
               const Divider(height: 24),
               _TrayHelpCard(onShowTrayHint: widget.onShowTrayHint),

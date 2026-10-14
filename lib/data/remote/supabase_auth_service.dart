@@ -1,9 +1,12 @@
+import 'dart:io' show Platform;
+
 import 'package:mya/application/authentication/auth_exception.dart';
 import 'package:mya/application/authentication/auth_service.dart';
 import 'package:mya/core/constants/auth_constants.dart';
 import 'package:mya/data/remote/auth_user_mapper.dart';
 import 'package:mya/domain/entities/auth_user.dart' as domain;
 import 'package:mya/domain/entities/mya_auth_provider.dart';
+import 'package:mya/platform/android/android_supabase_oauth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Implémentation Supabase Auth (OAuth PKCE + deep link).
@@ -29,6 +32,11 @@ class SupabaseAuthService implements AuthService {
 
   @override
   Future<void> signInWithProvider(MyaAuthProvider provider) async {
+    if (Platform.isAndroid) {
+      await AndroidSupabaseOAuth.signIn(_auth, provider);
+      return;
+    }
+
     try {
       await _auth.signInWithOAuth(
         _toOAuthProvider(provider),
@@ -36,7 +44,7 @@ class SupabaseAuthService implements AuthService {
         authScreenLaunchMode: LaunchMode.externalApplication,
       );
     } on AuthException catch (error) {
-      throw AuthSignInException(error.message, cause: error);
+      throw AuthSignInException(mapSupabaseAuthError(error), cause: error);
     } catch (error) {
       throw AuthSignInException(
         'Impossible d\'ouvrir la connexion ${AuthDisplayProvider.name(provider)}.',

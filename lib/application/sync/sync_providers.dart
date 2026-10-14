@@ -44,6 +44,23 @@ final syncLifecycleProvider = Provider<void>((ref) {
     );
   });
 
+  // Session déjà ouverte au démarrage (Android / redémarrage Windows).
+  Future.microtask(() {
+    if (ref.read(authUserProvider).value == null) return;
+    unawaited(
+      ref.read(syncServiceProvider).syncNow().catchError((
+        Object error,
+        StackTrace stackTrace,
+      ) {
+        appLogger.w(
+          'Synchronisation initiale impossible',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }),
+    );
+  });
+
   final connectivitySubscription = Connectivity().onConnectivityChanged.listen((
     results,
   ) {

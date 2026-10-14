@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mya/application/authentication/auth_exception.dart';
@@ -31,12 +33,18 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
     setState(() {
       _busy = true;
       _error = null;
-      _info = 'Un navigateur va s\'ouvrir. Revenez ici après la connexion.';
+      _info = Platform.isAndroid
+          ? 'Une fenêtre de connexion va s\'ouvrir.'
+          : 'Un navigateur va s\'ouvrir. Revenez ici après la connexion.';
     });
 
     try {
       await ref.read(authServiceProvider).signInWithProvider(provider);
       if (!mounted) return;
+      if (Platform.isAndroid && ref.read(authUserProvider).value != null) {
+        Navigator.of(context).pop(true);
+        return;
+      }
       setState(() {
         _info = 'Terminez la connexion dans le navigateur, puis revenez à MYA.';
       });

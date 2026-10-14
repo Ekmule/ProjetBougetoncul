@@ -192,6 +192,22 @@ Le switch **`-BumpBuild`** incrémente le numéro de build dans `pubspec.yaml` (
 | **Données utilisateur** | **Non effacées** : base SQLite `%LOCALAPPDATA%\mya\`, préférences `%APPDATA%\com.mya\` |
 | **Raccourci bureau** | Optionnel (première install uniquement) |
 | **Démarrage avec Windows** | Coché par défaut — appliqué au premier lancement uniquement |
+
+### Publication GitHub Releases (testeurs)
+
+MYA vérifie automatiquement la dernière release GitHub (Windows release uniquement) et propose d'installer `MYA-Setup-*.exe`.
+
+```powershell
+# Build + publish (nécessite gh auth login)
+powershell -ExecutionPolicy Bypass -File .\scripts\publish-github-release.ps1 -BumpBuild -Notes "Correctifs sync"
+```
+
+| Élément | Détail |
+|---|---|
+| **Détection** | API `releases/latest` sur `Ekmule/ProjetBougetoncul` |
+| **Asset attendu** | `MYA-Setup-x.y.z.exe` ou `MYA-Setup-x.y.z-buildN.exe` |
+| **UI** | Paramètres → Mises à jour + proposition automatique (max 1× / 24 h) |
+| **Installation** | Lance l'installateur Inno (`/CLOSEAPPLICATIONS /RESTARTAPPLICATIONS`) |
 | **Synchronisation cloud** | Option « bientôt disponible » — enregistre la préférence pour D14–D15 |
 
 ### Tester une mise à jour

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mya_widget_name">MYA</string>
+    <string name="mya_widget_description">Ouvrir vos tâches MYA</string>
+    <string name="mya_widget_sync_badge">Synchronisation cloud active</string>
+    <string name="mya_widget_today_badge">Tâche prévue aujourd\u2019hui</string>
+    <string name="mya_widget_section_today">AUJOURD\u2019HUI</string>
+    <string name="mya_widget_idle_hint">Aucune tâche pour aujourd\u2019hui</string>
+</resources>
