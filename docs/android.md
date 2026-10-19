@@ -168,10 +168,24 @@ Les pastilles se mettent à jour à l’ouverture de l’app, au retour au premi
 
 ---
 
-## 7. Hors scope prochaines phases
+## 7. Mises à jour (GitHub Releases)
+
+Comme sur Windows, l’APK **ne se met pas à jour** au `git push` : il faut publier une release avec l’asset  
+`MYA-Android-x.y.z-buildN.apk` (voir `docs/releases.md`).
+
+Dans MYA : **Paramètres → Mises à jour** (version installée + vérification manuelle).  
+Au démarrage, une vérification automatique peut proposer une mise à jour (max ~1×/24 h).
+
+`.env.json` peut inclure `UPDATE_GITHUB_OWNER` / `UPDATE_GITHUB_REPO` (voir `.env.json.example`).
+
+Éditeur affiché dans l’app : **Zonakron édition** (copyright dans les paramètres).
+
+---
+
+## 8. Hors scope prochaines phases
 
 - Pastille flottante overlay (comme Windows)
-- Publication Play Store / signature release production
-- Mises a jour automatiques (D-update Android)
+- Publication Play Store (mises à jour via Google Play, autre flux)
+- Signature release Android dédiée (keystore éditeur — recommandé avant diffusion large)
 
 Voir `docs/architecture.md` pour la feuille de route complete.

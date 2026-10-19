@@ -41,7 +41,7 @@ if (Test-Path $envFile) {
     Write-Host "Supabase : .env.json detecte" -ForegroundColor Yellow
     $dartDefineArgs += "--dart-define-from-file=$envFile"
 } else {
-    Write-Host "Attention : .env.json absent — l'APK fonctionnera en local-only." -ForegroundColor Yellow
+    Write-Host "Attention : .env.json absent - l'APK fonctionnera en local-only." -ForegroundColor Yellow
 }
 
 Write-Host "Flutter : $(& `"$flutterRoot\bin\flutter.bat`" --version | Select-Object -First 1)" -ForegroundColor Green

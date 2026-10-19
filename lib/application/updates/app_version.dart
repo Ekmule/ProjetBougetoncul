@@ -19,6 +19,11 @@ class AppVersion implements Comparable<AppVersion> {
     caseSensitive: false,
   );
 
+  static final RegExp _androidApkPattern = RegExp(
+    r'^MYA-Android-(\d+)\.(\d+)\.(\d+)(?:-build(\d+))?\.apk$',
+    caseSensitive: false,
+  );
+
   static final RegExp _tagPattern = RegExp(
     r'^v?(\d+)\.(\d+)\.(\d+)(?:-build(\d+))?$',
     caseSensitive: false,
@@ -63,7 +68,15 @@ class AppVersion implements Comparable<AppVersion> {
   }
 
   static AppVersion? fromInstallerAssetName(String fileName) {
-    final match = _installerPattern.firstMatch(fileName.trim());
+    return _fromPattern(_installerPattern, fileName);
+  }
+
+  static AppVersion? fromAndroidApkAssetName(String fileName) {
+    return _fromPattern(_androidApkPattern, fileName);
+  }
+
+  static AppVersion? _fromPattern(RegExp pattern, String fileName) {
+    final match = pattern.firstMatch(fileName.trim());
     if (match == null) return null;
     return AppVersion(
       major: int.parse(match.group(1)!),
@@ -71,6 +84,14 @@ class AppVersion implements Comparable<AppVersion> {
       patch: int.parse(match.group(3)!),
       build: match.group(4) == null ? 0 : int.parse(match.group(4)!),
     );
+  }
+
+  /// Nom d'asset GitHub Releases pour un APK Android universel.
+  String toAndroidApkFileName() {
+    if (build > 0) {
+      return 'MYA-Android-$major.$minor.$patch-build$build.apk';
+    }
+    return 'MYA-Android-$major.$minor.$patch.apk';
   }
 
   String get versionKey => '$major.$minor.$patch+$build';

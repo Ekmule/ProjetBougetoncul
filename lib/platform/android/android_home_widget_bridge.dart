@@ -31,7 +31,7 @@ abstract final class AndroidHomeWidgetBridge {
     try {
       await HomeWidget.saveWidgetData<String>(
         AndroidHomeWidgetKeys.iconId,
-        BubbleIconCatalog.resolve(snapshot.iconId).id,
+        snapshot.iconId,
       );
       await HomeWidget.saveWidgetData<bool>(
         AndroidHomeWidgetKeys.syncBadgeVisible,

@@ -6,6 +6,8 @@ import 'package:mya/application/authentication/auth_display.dart';
 import 'package:mya/application/authentication/auth_providers.dart';
 import 'package:mya/application/sync/sync_status_provider.dart';
 import 'package:mya/application/updates/update_providers.dart';
+import 'package:mya/features/settings/widgets/app_about_footer.dart';
+import 'package:mya/features/settings/widgets/app_update_dialog.dart';
 import 'package:mya/features/settings/widgets/auth_settings_dialog.dart';
 import 'package:mya/features/shared/widgets/cloud_sync_badge.dart';
 import 'package:mya/platform/android/android_home_widget_bridge.dart';
@@ -52,6 +54,24 @@ class MobileSettingsSheet extends ConsumerWidget {
             await AuthSettingsDialog.show(context);
           },
         ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.system_update_alt_outlined),
+          title: const Text('Mises à jour'),
+          subtitle: packageInfo.when(
+            data: (info) => Text(
+              'Version ${info.version}'
+              '${info.buildNumber.isEmpty ? '' : ' (build ${info.buildNumber})'}',
+            ),
+            loading: () => const Text('Version…'),
+            error: (_, _) => const Text('Version inconnue'),
+          ),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () async {
+            Navigator.of(context).pop();
+            await AppUpdateSettingsDialog.show(context);
+          },
+        ),
         if (Platform.isAndroid) ...[
           ListTile(
             contentPadding: EdgeInsets.zero,
@@ -85,16 +105,8 @@ class MobileSettingsSheet extends ConsumerWidget {
             child: CloudSyncStatusChip(snapshot: syncSnapshot),
           ),
         ],
-        const SizedBox(height: 12),
-        packageInfo.when(
-          data: (info) => Text(
-            'Version ${info.version}'
-            '${info.buildNumber.isEmpty ? '' : ' (build ${info.buildNumber})'}',
-            style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
-          ),
-          loading: () => const SizedBox.shrink(),
-          error: (_, _) => const SizedBox.shrink(),
-        ),
+        const SizedBox(height: 16),
+        const AppAboutFooter(compact: true),
         if (!authConfigured) ...[
           const SizedBox(height: 12),
           Text(

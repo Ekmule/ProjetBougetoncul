@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mya/application/updates/app_release_info.dart';
 import 'package:mya/application/updates/app_version.dart';
 import 'package:mya/application/updates/github_release_update_service.dart';
+import 'package:mya/application/updates/update_asset_kind.dart';
 import 'package:mya/application/updates/update_service.dart';
 import 'package:mya/core/configuration/update_config.dart';
 import 'package:mya/data/providers/device_settings_providers.dart';
@@ -16,12 +17,21 @@ final packageInfoProvider = FutureProvider<PackageInfo>((ref) {
 });
 
 final updateServiceProvider = Provider<UpdateService>((ref) {
-  if (!Platform.isWindows || !UpdateConfig.isConfigured || kDebugMode) {
+  if (!UpdateConfig.isConfigured || kDebugMode) {
     return const NoOpUpdateService();
   }
+
+  final UpdateAssetKind? kind = switch (Platform.operatingSystem) {
+    'windows' => UpdateAssetKind.windowsInstaller,
+    'android' => UpdateAssetKind.androidApk,
+    _ => null,
+  };
+  if (kind == null) return const NoOpUpdateService();
+
   return GitHubReleaseUpdateService(
     owner: UpdateConfig.githubOwner,
     repo: UpdateConfig.githubRepo,
+    assetKind: kind,
   );
 });
 
@@ -185,9 +195,10 @@ final updateCheckProvider =
       UpdateCheckNotifier.new,
     );
 
-/// Lance une vérification différée au démarrage Windows.
+/// Lance une vérification différée au démarrage (Windows / Android).
 final updateLifecycleProvider = Provider<void>((ref) {
-  if (!Platform.isWindows || kDebugMode || !UpdateConfig.isConfigured) {
+  final supported = Platform.isWindows || Platform.isAndroid;
+  if (!supported || kDebugMode || !UpdateConfig.isConfigured) {
     return;
   }
 

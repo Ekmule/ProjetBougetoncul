@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,7 +83,7 @@ class AppUpdateDialog extends ConsumerWidget {
               : () => ref
                     .read(updateCheckProvider.notifier)
                     .installAvailableUpdate(),
-          child: const Text('Installer'),
+          child: Text(Platform.isAndroid ? 'Télécharger et installer' : 'Installer'),
         ),
       ],
     );

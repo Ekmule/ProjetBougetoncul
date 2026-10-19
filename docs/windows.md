@@ -195,11 +195,15 @@ Le switch **`-BumpBuild`** incrémente le numéro de build dans `pubspec.yaml` (
 
 ### Publication GitHub Releases (testeurs)
 
-MYA vérifie automatiquement la dernière release GitHub (Windows release uniquement) et propose d'installer `MYA-Setup-*.exe`.
+Un **`git push` ne met pas à jour** les applications installées : les clients lisent **`releases/latest`** sur GitHub. Voir `docs/releases.md`.
+
+MYA vérifie automatiquement cette release et propose d'installer `MYA-Setup-*.exe` (Android : `MYA-Android-*.apk` si publié).
 
 ```powershell
 # Build + publish (nécessite gh auth login)
 powershell -ExecutionPolicy Bypass -File .\scripts\publish-github-release.ps1 -BumpBuild -Notes "Correctifs sync"
+# Windows + APK sur la même release :
+# ... -IncludeAndroid
 ```
 
 | Élément | Détail |

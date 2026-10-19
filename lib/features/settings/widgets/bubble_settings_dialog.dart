@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mya/application/authentication/auth_providers.dart';
 import 'package:mya/application/sync/sync_status_provider.dart';
 import 'package:mya/application/updates/update_providers.dart';
+import 'package:mya/features/settings/widgets/app_about_footer.dart';
 import 'package:mya/features/settings/widgets/app_update_dialog.dart';
 import 'package:mya/application/bubble/always_on_top_service.dart';
 import 'package:mya/application/bubble/bubble_appearance_notifier.dart';
@@ -288,6 +289,8 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
               ),
               const Divider(height: 24),
               _TrayHelpCard(onShowTrayHint: widget.onShowTrayHint),
+              const SizedBox(height: 16),
+              const AppAboutFooter(),
             ],
           ),
         ),
