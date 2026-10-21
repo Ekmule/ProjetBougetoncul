@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 import 'package:mya/platform/android/android_home_widget_bridge.dart';
 
 /// Propose d'épingler le widget MYA au premier lancement Android (D17a).
@@ -14,24 +15,21 @@ class AndroidWidgetPinDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AlertDialog(
-      title: const Text('Ajouter MYA à l\'écran d\'accueil'),
-      content: const Text(
-        'MYA fonctionne mieux avec son widget 1×1 : un tap ouvre '
-        'directement vos tâches.\n\n'
-        'Android va vous proposer de le placer sur l\'écran d\'accueil.',
-      ),
+      title: Text(l10n.homeWidgetPinDialogTitle),
+      content: Text(l10n.homeWidgetPinDialogBody),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Plus tard'),
+          child: Text(l10n.later),
         ),
         FilledButton(
           onPressed: () async {
             Navigator.of(context).pop();
             await AndroidHomeWidgetBridge.requestPin();
           },
-          child: const Text('Ajouter le widget'),
+          child: Text(l10n.homeWidgetPinAdd),
         ),
       ],
     );

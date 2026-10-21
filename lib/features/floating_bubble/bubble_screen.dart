@@ -13,12 +13,16 @@ import 'package:mya/data/providers/device_settings_providers.dart';
 import 'package:mya/domain/entities/task.dart';
 import 'package:mya/domain/services/task_date_service.dart';
 import 'package:mya/features/floating_bubble/bubble_debug.dart';
+import 'package:mya/features/onboarding/cloud_sign_in_prompt.dart';
 import 'package:mya/features/floating_bubble/widgets/bubble_button.dart';
 import 'package:mya/features/floating_bubble/widgets/task_panel.dart';
 import 'package:mya/features/quick_add/quick_add_presenter.dart';
 import 'package:mya/features/tasks/widgets/task_edit_dialog.dart';
 import 'package:mya/application/authentication/auth_display.dart';
 import 'package:mya/application/authentication/auth_providers.dart';
+import 'package:mya/application/localization/app_locale_provider.dart';
+import 'package:mya/l10n/app_locale_code.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 import 'package:mya/application/sync/sync_status_provider.dart';
 import 'package:mya/application/updates/update_providers.dart';
 import 'package:mya/features/settings/widgets/app_update_dialog.dart';
@@ -128,15 +132,26 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
     final settings = ref.read(deviceSettingsStoreProvider).readBubbleSettings();
     final authUser = ref.read(authUserProvider).value;
     final authConfigured = ref.read(authConfiguredProvider);
+    final l10n = MyaLocalizations.lookup(
+      AppLocaleCode.parse(ref.read(appLocaleProvider).languageCode),
+    );
+    final hotkeyLabel = ref.read(globalHotkeyServiceProvider).displayLabel;
     return TrayMenuState(
-      bubbleVisible: ui.isVisible,
-      alwaysOnTop: ui.alwaysOnTop,
-      startupEnabled: settings.startupEnabled,
-      hotkeyLabel: ref.read(globalHotkeyServiceProvider).displayLabel,
+      tooltip: l10n.trayTooltip,
+      openLabel: l10n.trayOpenMya,
+      toggleVisibleLabel:
+          ui.isVisible ? l10n.trayHideBubble : l10n.trayShowBubble,
+      toggleAotLabel: ui.alwaysOnTop ? l10n.trayAotOn : l10n.trayAotOff,
+      toggleStartupLabel: settings.startupEnabled
+          ? l10n.trayStartupOn
+          : l10n.trayStartupOff,
+      hotkeyMenuLabel: l10n.trayHotkeyMenu(hotkeyLabel),
       authLabel: AuthDisplay.trayMenuLabel(
+        l10n,
         authUser,
         isConfigured: authConfigured,
       ),
+      quitLabel: l10n.trayQuit,
     );
   }
 
@@ -214,10 +229,12 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
     await ref
         .read(notificationServiceProvider)
         .showInfo(
-          title: 'MYA est dans la barre des tâches',
-          body:
-              'Cherchez l\'icône MYA près de l\'horloge (cliquez ^ sur Windows 11). '
-              'Clic droit pour le menu complet.',
+          title: MyaLocalizations.lookup(
+            AppLocaleCode.parse(ref.read(appLocaleProvider).languageCode),
+          ).trayNotificationTitle,
+          body: MyaLocalizations.lookup(
+            AppLocaleCode.parse(ref.read(appLocaleProvider).languageCode),
+          ).trayNotificationBody,
         );
     await Future<void>.delayed(const Duration(milliseconds: 600));
     await _trayService.popUpContextMenu();
@@ -247,6 +264,8 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
         }
       }
     }
+    if (!mounted) return;
+    await maybeShowCloudSignInPrompt(context, ref);
     if (!mounted) return;
     await _maybeShowTrayHintOnFirstLaunch();
   }
@@ -480,6 +499,10 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
         .read(deviceSettingsStoreProvider)
         .readBubbleSettings()
         .freeDragEnabled;
+
+    ref.listen(appLocaleProvider, (_, _) async {
+      await _refreshTrayMenu();
+    });
 
     ref.listen(authUserProvider, (previous, next) async {
       if (previous?.value?.id != next.value?.id) {

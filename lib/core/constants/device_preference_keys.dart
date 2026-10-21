@@ -13,6 +13,8 @@ abstract final class DevicePreferenceKeys {
   static const bubbleIconId = 'bubble_icon_id';
   static const trayHintShown = 'tray_hint_shown';
   static const preferCloudSync = 'prefer_cloud_sync';
+  static const appLocale = 'app_locale';
+  static const cloudSignInPromptPending = 'cloud_sign_in_prompt_pending';
   static const onboardingCompleted = 'onboarding_completed';
   static const androidWidgetPinOffered = 'android_widget_pin_offered';
   static const updateCheckLastAt = 'update_check_last_at';

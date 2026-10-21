@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mya/application/sync/sync_ui_state.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 /// Pastille colorée indiquant l'état cloud sur l'icône MYA.
 class CloudSyncBadge extends StatelessWidget {
@@ -77,7 +78,7 @@ class CloudSyncStatusChip extends StatelessWidget {
           ),
           SizedBox(width: compact ? 4 : 6),
           Text(
-            snapshot.statusLabel(),
+            snapshot.statusLabel(context.l10n),
             style: theme.textTheme.labelSmall?.copyWith(
               color: color,
               fontSize: compact ? 10 : null,

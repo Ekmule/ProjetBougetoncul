@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mya/core/constants/task_categories.dart';
 import 'package:mya/domain/entities/task.dart';
 import 'package:mya/features/tasks/widgets/task_list_tile.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 /// En-tête + tâches d'une section catégorie.
 class TaskCategorySection extends StatelessWidget {
@@ -54,7 +55,8 @@ class TaskCategorySection extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final label = title ?? category!.defaultLabel;
+    final l10n = context.l10n;
+    final label = title ?? l10n.categoryLabel(category!);
     final color = Color(category?.colorValue ?? 0xFF757575);
 
     return Padding(
@@ -78,7 +80,7 @@ class TaskCategorySection extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: Text(
-                'Rien ici',
+                l10n.nothingHere,
                 style: Theme.of(context).textTheme.bodySmall
                     ?.copyWith(color: Colors.white38),
               ),
@@ -158,6 +160,7 @@ class TaskCategoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final canMove = enableCategoryMove && !isPreview && onMoveCategory != null;
     final canEditDate =
         enableDateEdit && !isPreview && onSetPlannedDate != null;
@@ -175,9 +178,7 @@ class TaskCategoryList extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(12),
             child: Text(
-              isPreview
-                  ? 'Aucune tâche active.\nCliquez pour ouvrir le panneau complet.'
-                  : 'Aucune tâche active.\nAjoutez-en une ci-dessus ou rouvrez une tâche terminée.',
+              isPreview ? l10n.noActiveTasksPreview : l10n.noActiveTasksFull,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Colors.white54,
                 fontSize: isPreview ? 11 : null,
@@ -206,7 +207,7 @@ class TaskCategoryList extends StatelessWidget {
           ),
         if (showCompleted && completedTasks.isNotEmpty)
           TaskCategorySection(
-            title: 'TERMINÉES (${completedTasks.length})',
+            title: l10n.completedSectionTitle(completedTasks.length),
             tasks: completedTasks,
             onComplete: onComplete,
             onReopen: onReopen,

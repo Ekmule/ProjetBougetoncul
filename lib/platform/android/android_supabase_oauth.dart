@@ -1,16 +1,20 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
-import 'package:mya/application/authentication/auth_display.dart';
 import 'package:mya/application/authentication/auth_exception.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 import 'package:mya/core/constants/auth_constants.dart';
 import 'package:mya/domain/entities/mya_auth_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// OAuth Supabase via flutter_web_auth_2 (Auth Tab Android, D16 fix).
 abstract final class AndroidSupabaseOAuth {
-  static Future<void> signIn(GoTrueClient auth, MyaAuthProvider provider) async {
+  static Future<void> signIn(
+    GoTrueClient auth,
+    MyaAuthProvider provider, {
+    required MyaLocalizations l10n,
+  }) async {
     final oauthProvider = _toOAuthProvider(provider);
-    final providerName = AuthDisplay.providerLabel(provider);
+    final providerName = l10n.oauthProviderLabel(provider);
 
     try {
       final oauthUrl = await auth.getOAuthSignInUrl(

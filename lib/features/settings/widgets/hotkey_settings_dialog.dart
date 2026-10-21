@@ -5,6 +5,7 @@ import 'package:mya/application/hotkeys/global_hotkey_display.dart';
 import 'package:mya/application/hotkeys/global_hotkey_notifier.dart';
 import 'package:mya/application/hotkeys/global_hotkey_service.dart';
 import 'package:mya/core/constants/global_hotkey_defaults.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 /// Dialogue de configuration du raccourci global (D12).
 class HotkeySettingsDialog extends ConsumerStatefulWidget {
@@ -39,7 +40,7 @@ class _HotkeySettingsDialogState extends ConsumerState<HotkeySettingsDialog> {
     final service = ref.read(globalHotkeyServiceProvider);
     if (!service.isValid(hotkey)) {
       setState(() {
-        _error = 'Ajoutez au moins un modificateur (Ctrl, Alt, Maj…).';
+        _error = context.l10n.hotkeyModifierRequired;
       });
       return;
     }
@@ -58,15 +59,16 @@ class _HotkeySettingsDialogState extends ConsumerState<HotkeySettingsDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final hotkey = _recordedHotkey;
 
     return AlertDialog(
-      title: const Text('Raccourci de création rapide'),
+      title: Text(l10n.hotkeySettingsTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Appuyez sur la combinaison souhaitée :'),
+          Text(l10n.hotkeyRecordPrompt),
           const SizedBox(height: 12),
           if (hotkey != null)
             HotKeyRecorder(
@@ -81,7 +83,7 @@ class _HotkeySettingsDialogState extends ConsumerState<HotkeySettingsDialog> {
           if (hotkey != null) ...[
             const SizedBox(height: 8),
             Text(
-              'Actuel : ${GlobalHotkeyDisplay.format(hotkey)}',
+              '${l10n.hotkeyCurrent} ${GlobalHotkeyDisplay.format(hotkey)}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
@@ -97,15 +99,15 @@ class _HotkeySettingsDialogState extends ConsumerState<HotkeySettingsDialog> {
       actions: [
         TextButton(
           onPressed: _resetToDefault,
-          child: const Text('Par défaut'),
+          child: Text(l10n.hotkeyDefault),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Annuler'),
+          child: Text(l10n.cancel),
         ),
         FilledButton(
           onPressed: _save,
-          child: const Text('Enregistrer'),
+          child: Text(l10n.save),
         ),
       ],
     );

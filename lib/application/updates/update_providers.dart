@@ -8,8 +8,11 @@ import 'package:mya/application/updates/app_version.dart';
 import 'package:mya/application/updates/github_release_update_service.dart';
 import 'package:mya/application/updates/update_asset_kind.dart';
 import 'package:mya/application/updates/update_service.dart';
+import 'package:mya/application/localization/app_locale_provider.dart';
 import 'package:mya/core/configuration/update_config.dart';
 import 'package:mya/data/providers/device_settings_providers.dart';
+import 'package:mya/l10n/app_locale_code.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 final packageInfoProvider = FutureProvider<PackageInfo>((ref) {
@@ -97,6 +100,9 @@ class UpdateCheckNotifier extends Notifier<UpdateCheckState> {
     );
 
     try {
+      final l10n = MyaLocalizations.lookup(
+        AppLocaleCode.parse(ref.read(appLocaleProvider).languageCode),
+      );
       final packageInfo = await ref.read(packageInfoProvider.future);
       final current = AppVersion.fromPackageInfo(packageInfo);
       final release = await ref
@@ -112,7 +118,7 @@ class UpdateCheckNotifier extends Notifier<UpdateCheckState> {
           checking: false,
           currentVersion: current,
           infoMessage: userInitiated
-              ? 'MYA est déjà à jour (${current.displayName}).'
+              ? l10n.updateAlreadyLatestBody(current.displayName)
               : null,
         );
         return;
@@ -134,9 +140,12 @@ class UpdateCheckNotifier extends Notifier<UpdateCheckState> {
     } on UpdateCheckException catch (error) {
       state = state.copyWith(checking: false, errorMessage: error.message);
     } catch (_) {
+      final l10n = MyaLocalizations.lookup(
+        AppLocaleCode.parse(ref.read(appLocaleProvider).languageCode),
+      );
       state = state.copyWith(
         checking: false,
-        errorMessage: 'Impossible de vérifier les mises à jour.',
+        errorMessage: l10n.updateCheckFailed,
       );
     }
   }
@@ -182,9 +191,12 @@ class UpdateCheckNotifier extends Notifier<UpdateCheckState> {
     } on UpdateDownloadException catch (error) {
       state = state.copyWith(downloading: false, errorMessage: error.message);
     } catch (_) {
+      final l10n = MyaLocalizations.lookup(
+        AppLocaleCode.parse(ref.read(appLocaleProvider).languageCode),
+      );
       state = state.copyWith(
         downloading: false,
-        errorMessage: 'Installation impossible.',
+        errorMessage: l10n.updateInstallFailed,
       );
     }
   }

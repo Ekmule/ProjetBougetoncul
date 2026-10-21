@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mya/application/bubble/bubble_appearance_notifier.dart';
 import 'package:mya/data/providers/device_settings_providers.dart';
 import 'package:mya/features/settings/widgets/bubble_icon_gallery.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 /// Écran de bienvenue — choix de l'icône de pastille au premier lancement.
 class BubbleIconPickerDialog extends ConsumerStatefulWidget {
@@ -42,9 +43,10 @@ class _BubbleIconPickerDialogState extends ConsumerState<BubbleIconPickerDialog>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return AlertDialog(
-      title: const Text('Choisissez votre pastille'),
+      title: Text(l10n.bubbleIconPickerTitle),
       content: SizedBox(
         width: 360,
         child: Column(
@@ -52,9 +54,7 @@ class _BubbleIconPickerDialogState extends ConsumerState<BubbleIconPickerDialog>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'MYA reste discrète sur votre bureau. '
-              'Sélectionnez l\'icône qui vous convient — vous pourrez '
-              'la changer plus tard dans Paramètres.',
+              l10n.bubbleIconPickerBody,
               style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
             ),
             const SizedBox(height: 16),
@@ -69,7 +69,7 @@ class _BubbleIconPickerDialogState extends ConsumerState<BubbleIconPickerDialog>
       actions: [
         FilledButton(
           onPressed: _confirm,
-          child: const Text('Continuer'),
+          child: Text(l10n.continueButton),
         ),
       ],
     );

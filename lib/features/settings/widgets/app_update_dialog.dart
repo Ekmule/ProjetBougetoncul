@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mya/application/updates/app_release_info.dart';
 import 'package:mya/application/updates/update_providers.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 /// Propose d'installer une release GitHub détectée.
 class AppUpdateDialog extends ConsumerWidget {
@@ -34,15 +35,16 @@ class AppUpdateDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final updateState = ref.watch(updateCheckProvider);
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return AlertDialog(
-      title: const Text('Mise à jour disponible'),
+      title: Text(l10n.updateAvailableTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'MYA ${release.version.displayName} est disponible.',
+            l10n.updateAvailableBody(release.version.displayName),
             style: theme.textTheme.titleSmall,
           ),
           if (release.releaseNotes != null) ...[
@@ -53,7 +55,7 @@ class AppUpdateDialog extends ConsumerWidget {
             const SizedBox(height: 16),
             LinearProgressIndicator(value: updateState.progress),
             const SizedBox(height: 8),
-            const Text('Téléchargement en cours…'),
+            Text(l10n.updateDownloading),
           ],
           if (updateState.errorMessage != null) ...[
             const SizedBox(height: 12),
@@ -75,7 +77,7 @@ class AppUpdateDialog extends ConsumerWidget {
                         .dismissAvailableUpdate();
                     if (context.mounted) Navigator.of(context).pop();
                   },
-            child: const Text('Plus tard'),
+            child: Text(l10n.later),
           ),
         FilledButton(
           onPressed: updateState.downloading
@@ -83,7 +85,9 @@ class AppUpdateDialog extends ConsumerWidget {
               : () => ref
                     .read(updateCheckProvider.notifier)
                     .installAvailableUpdate(),
-          child: Text(Platform.isAndroid ? 'Télécharger et installer' : 'Installer'),
+          child: Text(
+            Platform.isAndroid ? l10n.updateDownloadInstall : l10n.updateInstall,
+          ),
         ),
       ],
     );
@@ -124,6 +128,7 @@ class _AppUpdateSettingsDialogState
   Widget build(BuildContext context) {
     final updateState = ref.watch(updateCheckProvider);
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final current = updateState.currentVersion?.displayName;
 
     ref.listen(updateCheckProvider, (previous, next) {
@@ -139,23 +144,23 @@ class _AppUpdateSettingsDialogState
     });
 
     return AlertDialog(
-      title: const Text('Mises à jour'),
+      title: Text(l10n.updatesTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (current != null) Text('Version installée : $current'),
+          if (current != null) Text(l10n.versionInstalledLine(current)),
           const SizedBox(height: 12),
           if (updateState.checking)
-            const Row(
+            Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 18,
                   height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
-                SizedBox(width: 12),
-                Text('Recherche sur GitHub Releases…'),
+                const SizedBox(width: 12),
+                Text(l10n.updateChecking),
               ],
             ),
           if (updateState.infoMessage != null) Text(updateState.infoMessage!),
@@ -169,7 +174,7 @@ class _AppUpdateSettingsDialogState
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Fermer'),
+          child: Text(l10n.close),
         ),
         FilledButton(
           onPressed: updateState.checking
@@ -177,7 +182,7 @@ class _AppUpdateSettingsDialogState
               : () => ref
                     .read(updateCheckProvider.notifier)
                     .checkForUpdates(userInitiated: true),
-          child: const Text('Revérifier'),
+          child: Text(l10n.updateRecheck),
         ),
       ],
     );

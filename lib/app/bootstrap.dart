@@ -74,8 +74,10 @@ class AppBootstrap {
       if (installOptions.startupEnabled) {
         await settingsStore.saveStartupEnabled(true);
       }
+      await settingsStore.saveAppLocale(installOptions.appLocale);
       if (installOptions.preferCloudSync) {
         await settingsStore.savePreferCloudSync(true);
+        await settingsStore.setCloudSignInPromptPending(true);
       }
       await settingsStore.saveBubbleIconId(installOptions.bubbleIconId);
       // L'installateur contient déjà la galerie : ne pas afficher une seconde

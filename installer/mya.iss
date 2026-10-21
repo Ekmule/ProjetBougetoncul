@@ -50,12 +50,25 @@ UninstallDisplayIcon={app}\{#MyAppExeName}
 VersionInfoVersion={#MyAppVersionFull}
 
 [Languages]
+Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 
+[CustomMessages]
+english.GroupShortcuts=Shortcuts
+english.TaskDesktopIcon=Create a desktop icon
+english.GroupOptions=Options
+english.TaskStartup=Launch MYA when Windows starts
+english.TaskCloudSync=Enable cloud sync (sign in on first launch)
+french.GroupShortcuts=Raccourcis
+french.TaskDesktopIcon=Créer une icône sur le bureau
+french.GroupOptions=Options
+french.TaskStartup=Lancer MYA au démarrage de Windows
+french.TaskCloudSync=Activer la synchronisation cloud (connexion au premier lancement)
+
 [Tasks]
-Name: "desktopicon"; Description: "Créer une icône sur le bureau"; GroupDescription: "Raccourcis :"; Check: IsFreshInstall
-Name: "startup"; Description: "Lancer MYA au démarrage de Windows"; GroupDescription: "Options :"; Flags: checkedonce; Check: IsFreshInstall
-Name: "cloudsync"; Description: "Préparer la synchronisation cloud (bientôt disponible)"; GroupDescription: "Options :"; Flags: unchecked; Check: IsFreshInstall
+Name: "desktopicon"; Description: "{cm:TaskDesktopIcon}"; GroupDescription: "{cm:GroupShortcuts}"; Check: IsFreshInstall
+Name: "startup"; Description: "{cm:TaskStartup}"; GroupDescription: "{cm:GroupOptions}"; Flags: checkedonce; Check: IsFreshInstall
+Name: "cloudsync"; Description: "{cm:TaskCloudSync}"; GroupDescription: "{cm:GroupOptions}"; Flags: unchecked; Check: IsFreshInstall
 
 [Files]
 Source: "{#BuildDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -140,6 +153,14 @@ begin
   Result := not FreshInstall;
 end;
 
+function AppLocaleFromInstaller(): String;
+begin
+  if ActiveLanguage = 'french' then
+    Result := 'fr'
+  else
+    Result := 'en';
+end;
+
 procedure WriteInstallOptions();
 var
   OptionsPath: String;
@@ -147,6 +168,7 @@ var
   StartupEnabled: String;
   CloudSync: String;
   BubbleIcon: String;
+  AppLocale: String;
 begin
   if WizardIsTaskSelected('startup') then
     StartupEnabled := 'true'
@@ -165,6 +187,8 @@ begin
   else
     BubbleIcon := 'icon01';
 
+  AppLocale := AppLocaleFromInstaller();
+
   OptionsPath := ExpandConstant('{localappdata}\MYA');
   if not DirExists(OptionsPath) then
     ForceDirectories(OptionsPath);
@@ -173,7 +197,8 @@ begin
   JsonContent := '{' + #13#10 +
     '  "startup_enabled": ' + StartupEnabled + ',' + #13#10 +
     '  "prefer_cloud_sync": ' + CloudSync + ',' + #13#10 +
-    '  "bubble_icon": "' + BubbleIcon + '"' + #13#10 +
+    '  "bubble_icon": "' + BubbleIcon + '",' + #13#10 +
+    '  "app_locale": "' + AppLocale + '"' + #13#10 +
     '}';
 
   SaveStringToFile(OptionsPath, JsonContent, False);

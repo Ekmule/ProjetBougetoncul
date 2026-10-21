@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mya/domain/entities/task.dart';
 import 'package:mya/features/tasks/widgets/task_category_list.dart';
 import 'package:mya/features/tasks/widgets/task_list_tile.dart';
+import '../../test_app_shell.dart';
 
 void main() {
   testWidgets(
@@ -18,7 +19,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
+        testMaterialApp(
           home: Scaffold(
             body: SizedBox(
               width: 280,

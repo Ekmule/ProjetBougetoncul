@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mya/application/tasks/tasks_notifier.dart';
 import 'package:mya/features/quick_add/models/quick_add_input.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 /// Actions partagées pour la création rapide.
 abstract final class QuickAddActions {
@@ -19,7 +20,7 @@ abstract final class QuickAddActions {
   static void showSuccessSnackBar(BuildContext context, {String? message}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message ?? 'Pense-bête ajouté'),
+        content: Text(message ?? context.l10n.quickAddSuccess),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),

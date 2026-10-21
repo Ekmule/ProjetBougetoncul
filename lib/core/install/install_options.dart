@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:mya/core/constants/bubble_icon_catalog.dart';
+import 'package:mya/l10n/app_locale_code.dart';
 import 'package:mya/core/utils/app_logger.dart';
 
 /// Options choisies pendant l'installation Windows (écrites par Inno Setup).
@@ -10,11 +11,13 @@ class InstallOptions {
     this.startupEnabled = false,
     this.preferCloudSync = false,
     this.bubbleIconId = BubbleIconCatalog.defaultIconId,
+    this.appLocale = AppLocaleCode.en,
   });
 
   final bool startupEnabled;
   final bool preferCloudSync;
   final String bubbleIconId;
+  final AppLocaleCode appLocale;
 
   static InstallOptions? readIfPresent() {
     if (!Platform.isWindows) return null;
@@ -31,6 +34,7 @@ class InstallOptions {
         bubbleIconId: iconRaw is String && iconRaw.isNotEmpty
             ? BubbleIconCatalog.resolve(iconRaw).id
             : BubbleIconCatalog.defaultIconId,
+        appLocale: AppLocaleCode.parse(map['app_locale'] as String?),
       );
     } catch (error, stackTrace) {
       appLogger.w(

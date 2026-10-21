@@ -8,10 +8,12 @@ import 'package:mya/application/tasks/tasks_notifier.dart';
 import 'package:mya/application/sync/sync_status_provider.dart';
 import 'package:mya/data/providers/device_settings_providers.dart';
 import 'package:mya/features/onboarding/android_widget_pin_dialog.dart';
+import 'package:mya/features/onboarding/cloud_sign_in_prompt.dart';
 import 'package:mya/features/quick_add/quick_add_presenter.dart';
 import 'package:mya/features/settings/mobile_settings_sheet.dart';
 import 'package:mya/features/shared/widgets/cloud_sync_badge.dart';
 import 'package:mya/features/tasks/widgets/task_category_list.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 import 'package:mya/platform/android/android_home_widget_bridge.dart';
 
 /// Interface principale MYA — liste globale par catégories (D4).
@@ -26,8 +28,10 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      unawaited(_maybeOfferWidgetPin());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await maybeShowCloudSignInPrompt(context, ref);
+      if (!mounted) return;
+      await _maybeOfferWidgetPin();
     });
   }
 
@@ -67,14 +71,14 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
               ),
             ),
           IconButton(
-            tooltip: 'Paramètres',
+            tooltip: context.l10n.settingsTooltip,
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => MobileSettingsSheet.show(context),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        tooltip: 'Création rapide',
+        tooltip: context.l10n.quickAddTooltip,
         onPressed: () => QuickAddPresenter.showQuickAddSheet(context, ref),
         child: const Icon(Icons.add),
       ),

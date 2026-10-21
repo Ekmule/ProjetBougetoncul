@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mya/domain/entities/task.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 sealed class TaskEditResult {
   const TaskEditResult();
@@ -59,14 +60,15 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AlertDialog(
-      title: const Text('Modifier la tâche'),
+      title: Text(l10n.editTaskTitle),
       content: TextField(
         controller: _controller,
         autofocus: true,
         textInputAction: TextInputAction.done,
         onSubmitted: (_) => _save(),
-        decoration: const InputDecoration(labelText: 'Titre'),
+        decoration: InputDecoration(labelText: l10n.taskTitleLabel),
       ),
       actions: [
         TextButton(
@@ -75,13 +77,13 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
           style: TextButton.styleFrom(
             foregroundColor: Theme.of(context).colorScheme.error,
           ),
-          child: const Text('Supprimer'),
+          child: Text(l10n.delete),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Annuler'),
+          child: Text(l10n.cancel),
         ),
-        FilledButton(onPressed: _save, child: const Text('Enregistrer')),
+        FilledButton(onPressed: _save, child: Text(l10n.save)),
       ],
     );
   }

@@ -21,9 +21,6 @@ class WindowsTrayService with TrayListener implements TrayService {
     if (_initialized) return;
 
     await trayManager.setIcon(_trayIconPath);
-    await trayManager.setToolTip(
-      'MYA — clic gauche : ouvrir · clic droit : menu',
-    );
     trayManager.addListener(this);
     _initialized = true;
     await updateMenu();
@@ -34,35 +31,18 @@ class WindowsTrayService with TrayListener implements TrayService {
     if (!_initialized) return;
 
     final state = _readMenuState();
+    await trayManager.setToolTip(state.tooltip);
     await trayManager.setContextMenu(
       Menu(
         items: [
-          MenuItem(key: 'open', label: 'Ouvrir MYA'),
-          MenuItem(
-            key: 'toggle_visible',
-            label: state.bubbleVisible
-                ? 'Masquer la pastille'
-                : 'Afficher la pastille',
-          ),
-          MenuItem(
-            key: 'toggle_aot',
-            label: state.alwaysOnTop
-                ? 'Toujours au-dessus : activé'
-                : 'Toujours au-dessus : désactivé',
-          ),
-          MenuItem(
-            key: 'toggle_startup',
-            label: state.startupEnabled
-                ? 'Démarrage avec Windows : activé'
-                : 'Démarrage avec Windows : désactivé',
-          ),
-          MenuItem(
-            key: 'configure_hotkey',
-            label: 'Raccourci : ${state.hotkeyLabel}…',
-          ),
+          MenuItem(key: 'open', label: state.openLabel),
+          MenuItem(key: 'toggle_visible', label: state.toggleVisibleLabel),
+          MenuItem(key: 'toggle_aot', label: state.toggleAotLabel),
+          MenuItem(key: 'toggle_startup', label: state.toggleStartupLabel),
+          MenuItem(key: 'configure_hotkey', label: state.hotkeyMenuLabel),
           MenuItem(key: 'configure_account', label: state.authLabel),
           MenuItem.separator(),
-          MenuItem(key: 'quit', label: 'Quitter'),
+          MenuItem(key: 'quit', label: state.quitLabel),
         ],
       ),
     );
@@ -99,9 +79,6 @@ class WindowsTrayService with TrayListener implements TrayService {
   }
 
   void _dispatchSync(void Function() action) {
-    // Les événements du tray arrivent déjà sur l'isolate UI. Un
-    // addPostFrameCallback peut ne jamais s'exécuter lorsque la fenêtre est
-    // inactive et qu'aucune nouvelle frame n'est planifiée.
     action();
   }
 

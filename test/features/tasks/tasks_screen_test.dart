@@ -5,10 +5,16 @@ import 'package:mya/application/authentication/auth_providers.dart';
 import 'package:mya/application/authentication/auth_service.dart';
 import 'package:mya/application/tasks/task_list_state.dart';
 import 'package:mya/domain/entities/task.dart';
+import 'package:mya/data/providers/device_settings_providers.dart';
 import 'package:mya/features/tasks/tasks_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../test_app_shell.dart';
 
 void main() {
   testWidgets('TasksScreen affiche les catégories principales', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+
     final emptyGrouped = {
       for (final id in TaskCategoryId.values) id: <Task>[],
     };
@@ -16,6 +22,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
           authServiceProvider.overrideWithValue(const NoOpAuthService()),
           taskListStateProvider.overrideWith(
             (ref) => TaskListState(
@@ -24,7 +31,7 @@ void main() {
             ),
           ),
         ],
-        child: const MaterialApp(home: TasksScreen()),
+        child: testMaterialApp(home: const TasksScreen()),
       ),
     );
     await tester.pumpAndSettle();

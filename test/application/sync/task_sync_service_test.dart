@@ -10,6 +10,7 @@ import 'package:mya/data/remote/task_remote_data_source.dart';
 import 'package:mya/data/repositories/drift_task_repository.dart';
 import 'package:mya/domain/entities/auth_user.dart';
 import 'package:mya/domain/entities/mya_auth_provider.dart';
+import 'package:mya/l10n/app_locale_code.dart';
 import 'package:mya/domain/entities/task.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -237,7 +238,10 @@ class _FakeAuthService implements AuthService {
   Stream<AuthUser?> get authStateChanges => Stream.value(user);
 
   @override
-  Future<void> signInWithProvider(MyaAuthProvider provider) async {}
+  Future<void> signInWithProvider(
+    MyaAuthProvider provider, {
+    AppLocaleCode? locale,
+  }) async {}
 
   @override
   Future<void> signOut() async {}

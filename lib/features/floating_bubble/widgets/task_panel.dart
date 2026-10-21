@@ -4,6 +4,7 @@ import 'package:mya/domain/entities/task.dart';
 import 'package:mya/features/quick_add/quick_add_presenter.dart';
 import 'package:mya/features/shared/widgets/cloud_sync_badge.dart';
 import 'package:mya/features/tasks/widgets/task_category_list.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 /// Panneau de tâches de la pastille Windows — version complète ou aperçu.
 class TaskPanel extends StatelessWidget {
@@ -57,6 +58,7 @@ class TaskPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     final taskList = TaskCategoryList(
       groupedTasks: groupedTasks,
@@ -113,7 +115,7 @@ class TaskPanel extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: Text(
-                  '$quickAddHotkeyLabel = création rapide',
+                  l10n.quickAddHotkeyFooter(quickAddHotkeyLabel),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: Colors.white54,
                   ),
@@ -151,6 +153,7 @@ class _PanelHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final iconSize = compact ? 18.0 : 20.0;
     final buttonConstraints = compact
         ? const BoxConstraints(minWidth: 32, minHeight: 32)
@@ -174,7 +177,7 @@ class _PanelHeader extends StatelessWidget {
           const Spacer(),
           if (onSettings != null)
             IconButton(
-              tooltip: 'Paramètres',
+              tooltip: l10n.panelSettings,
               icon: Icon(Icons.settings_outlined, size: iconSize),
               visualDensity: compact ? VisualDensity.compact : null,
               constraints: buttonConstraints,
@@ -182,16 +185,14 @@ class _PanelHeader extends StatelessWidget {
             ),
           if (onExpand != null)
             IconButton(
-              tooltip: 'Ouvrir le panneau complet',
+              tooltip: l10n.panelExpand,
               icon: Icon(Icons.open_in_full, size: iconSize),
               visualDensity: compact ? VisualDensity.compact : null,
               constraints: buttonConstraints,
               onPressed: onExpand,
             ),
           IconButton(
-            tooltip: alwaysOnTop
-                ? 'Désactiver toujours au-dessus'
-                : 'Activer toujours au-dessus',
+            tooltip: alwaysOnTop ? l10n.panelDisableAot : l10n.panelEnableAot,
             icon: Icon(
               alwaysOnTop ? Icons.push_pin : Icons.push_pin_outlined,
               size: iconSize,
@@ -201,14 +202,14 @@ class _PanelHeader extends StatelessWidget {
             onPressed: onToggleAlwaysOnTop,
           ),
           IconButton(
-            tooltip: 'Masquer',
+            tooltip: l10n.panelHide,
             icon: Icon(Icons.visibility_off_outlined, size: iconSize),
             visualDensity: compact ? VisualDensity.compact : null,
             constraints: buttonConstraints,
             onPressed: onHide,
           ),
           IconButton(
-            tooltip: 'Réduire',
+            tooltip: l10n.panelCollapse,
             icon: Icon(Icons.close, size: iconSize),
             visualDensity: compact ? VisualDensity.compact : null,
             constraints: buttonConstraints,

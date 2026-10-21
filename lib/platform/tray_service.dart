@@ -27,16 +27,22 @@ abstract class TrayActions {
 /// État affiché dans le menu tray.
 class TrayMenuState {
   const TrayMenuState({
-    required this.bubbleVisible,
-    required this.alwaysOnTop,
-    required this.startupEnabled,
-    required this.hotkeyLabel,
+    required this.tooltip,
+    required this.openLabel,
+    required this.toggleVisibleLabel,
+    required this.toggleAotLabel,
+    required this.toggleStartupLabel,
+    required this.hotkeyMenuLabel,
     required this.authLabel,
+    required this.quitLabel,
   });
 
-  final bool bubbleVisible;
-  final bool alwaysOnTop;
-  final bool startupEnabled;
-  final String hotkeyLabel;
+  final String tooltip;
+  final String openLabel;
+  final String toggleVisibleLabel;
+  final String toggleAotLabel;
+  final String toggleStartupLabel;
+  final String hotkeyMenuLabel;
   final String authLabel;
+  final String quitLabel;
 }

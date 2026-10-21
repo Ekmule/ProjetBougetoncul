@@ -8,6 +8,7 @@ import 'package:mya/features/tasks/widgets/move_category_button.dart';
 import 'package:mya/features/tasks/widgets/task_edit_dialog.dart';
 import 'package:mya/features/tasks/widgets/task_planned_date_button.dart';
 import 'package:mya/features/tasks/widgets/task_reminder_button.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 /// Ligne d'une tâche dans une section catégorie.
 class TaskListTile extends StatelessWidget {
@@ -50,17 +51,24 @@ class TaskListTile extends StatelessWidget {
 
   static const _dateService = TaskDateService();
 
-  String? _subtitle() {
+  String? _subtitle(MyaLocalizations l10n) {
+    final locale = l10n.localeCode;
     if (isCompleted && task.completedAt != null) {
-      return 'Terminée le ${DateDisplay.plannedDate(task.completedAt!)}';
+      return l10n.completedOnLine(
+        DateDisplay.plannedDate(task.completedAt!, locale: locale),
+      );
     }
 
     final parts = <String>[];
     if (task.plannedDate != null) {
-      parts.add('📅 ${DateDisplay.plannedDate(task.plannedDate!)}');
+      parts.add(
+        '📅 ${DateDisplay.plannedDate(task.plannedDate!, locale: locale)}',
+      );
     }
     if (task.reminderAt != null) {
-      parts.add('🔔 ${DateDisplay.reminderDateTime(task.reminderAt!)}');
+      parts.add(
+        '🔔 ${DateDisplay.reminderDateTime(task.reminderAt!, locale: locale)}',
+      );
     }
 
     return parts.isEmpty ? null : parts.join('\n');
@@ -115,7 +123,8 @@ class TaskListTile extends StatelessWidget {
             (onEditTitle != null && onDelete != null));
 
     final isOverdue = !isCompleted && _dateService.isOverdue(task, now);
-    final subtitle = _subtitle();
+    final l10n = context.l10n;
+    final subtitle = _subtitle(l10n);
 
     return ListTile(
       dense: true,
@@ -128,21 +137,21 @@ class TaskListTile extends StatelessWidget {
                 color: Colors.green,
                 size: 20,
               ),
-              tooltip: 'Réouvrir la tâche',
+              tooltip: l10n.reopenTaskTooltip,
               onPressed: canReopen ? () => onReopen!(task.id) : null,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             )
           : IconButton(
               icon: const Icon(Icons.circle_outlined, size: 20),
-              tooltip: 'Marquer comme terminée',
+              tooltip: l10n.completeTaskTooltip,
               onPressed: () => onComplete(task.id),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
       onTap: canEditTask ? () => unawaited(_handleTap(context)) : null,
       title: Tooltip(
-        message: canEditTask ? 'Cliquer pour modifier' : '',
+        message: canEditTask ? l10n.tapToEditTooltip : '',
         child: Text(
           task.title,
           style: TextStyle(

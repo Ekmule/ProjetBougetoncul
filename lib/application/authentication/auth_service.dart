@@ -1,6 +1,7 @@
 import 'package:mya/application/authentication/auth_exception.dart';
 import 'package:mya/domain/entities/auth_user.dart';
 import 'package:mya/domain/entities/mya_auth_provider.dart';
+import 'package:mya/l10n/app_locale_code.dart';
 
 /// Authentification Supabase — couche application (D13).
 abstract class AuthService {
@@ -14,7 +15,10 @@ abstract class AuthService {
   Stream<AuthUser?> get authStateChanges;
 
   /// Ouvre le navigateur OAuth ; la session arrive via deep link.
-  Future<void> signInWithProvider(MyaAuthProvider provider);
+  Future<void> signInWithProvider(
+    MyaAuthProvider provider, {
+    AppLocaleCode? locale,
+  });
 
   /// Déconnecte et efface la session persistée.
   Future<void> signOut();
@@ -34,7 +38,10 @@ class NoOpAuthService implements AuthService {
   Stream<AuthUser?> get authStateChanges => Stream.value(null);
 
   @override
-  Future<void> signInWithProvider(MyaAuthProvider provider) async {
+  Future<void> signInWithProvider(
+    MyaAuthProvider provider, {
+    AppLocaleCode? locale,
+  }) async {
     throw const AuthNotConfiguredException();
   }
 

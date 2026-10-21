@@ -193,6 +193,12 @@ Le switch **`-BumpBuild`** incrémente le numéro de build dans `pubspec.yaml` (
 | **Raccourci bureau** | Optionnel (première install uniquement) |
 | **Démarrage avec Windows** | Coché par défaut — appliqué au premier lancement uniquement |
 
+### Langue (installateur et application)
+
+L'installateur Inno propose **English** (par défaut) ou **French** au démarrage. Ce choix est enregistré dans `install_options.json` (`app_locale`) et appliqué à MYA au premier lancement. La langue peut être modifiée ensuite dans **Paramètres → Langue**. En phase A, seuls certains écrans (dates, offre de connexion cloud, libellés de langue) suivent l'anglais ; le reste de l'interface reste en français jusqu'à une étape de traduction complète.
+
+La case **cloud sync** à l'installation ouvre une proposition de connexion au premier lancement (ignorable via **Plus tard**).
+
 ### Publication GitHub Releases (testeurs)
 
 Un **`git push` ne met pas à jour** les applications installées : les clients lisent **`releases/latest`** sur GitHub. Voir `docs/releases.md`.

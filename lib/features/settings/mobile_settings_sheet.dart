@@ -7,9 +7,11 @@ import 'package:mya/application/authentication/auth_providers.dart';
 import 'package:mya/application/sync/sync_status_provider.dart';
 import 'package:mya/application/updates/update_providers.dart';
 import 'package:mya/features/settings/widgets/app_about_footer.dart';
+import 'package:mya/features/settings/widgets/app_language_settings_section.dart';
 import 'package:mya/features/settings/widgets/app_update_dialog.dart';
 import 'package:mya/features/settings/widgets/auth_settings_dialog.dart';
 import 'package:mya/features/shared/widgets/cloud_sync_badge.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 import 'package:mya/platform/android/android_home_widget_bridge.dart';
 
 /// Paramètres compacts pour Android (compte, sync, version).
@@ -31,6 +33,7 @@ class MobileSettingsSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final authConfigured = ref.watch(authConfiguredProvider);
     final syncSnapshot = ref.watch(cloudSyncStatusProvider);
     final packageInfo = ref.watch(packageInfoProvider);
@@ -39,14 +42,17 @@ class MobileSettingsSheet extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Paramètres', style: theme.textTheme.titleLarge),
+        Text(l10n.settingsTitle, style: theme.textTheme.titleLarge),
         const SizedBox(height: 16),
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.person_outline),
-          title: const Text('Compte et synchronisation'),
+          title: Text(l10n.accountAndSyncTitle),
           subtitle: Text(
-            syncSnapshot.accountAndSyncSummary(isConfigured: authConfigured),
+            syncSnapshot.accountAndSyncSummary(
+              l10n: l10n,
+              isConfigured: authConfigured,
+            ),
           ),
           trailing: const Icon(Icons.chevron_right),
           onTap: () async {
@@ -57,14 +63,17 @@ class MobileSettingsSheet extends ConsumerWidget {
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.system_update_alt_outlined),
-          title: const Text('Mises à jour'),
+          title: Text(l10n.updatesTitle),
           subtitle: packageInfo.when(
             data: (info) => Text(
-              'Version ${info.version}'
-              '${info.buildNumber.isEmpty ? '' : ' (build ${info.buildNumber})'}',
+              l10n.versionLine.replaceFirst(
+                '{version}',
+                '${info.version}'
+                '${info.buildNumber.isEmpty ? '' : ' (build ${info.buildNumber})'}',
+              ),
             ),
-            loading: () => const Text('Version…'),
-            error: (_, _) => const Text('Version inconnue'),
+            loading: () => Text(l10n.versionLoading),
+            error: (_, _) => Text(l10n.versionUnknown),
           ),
           trailing: const Icon(Icons.chevron_right),
           onTap: () async {
@@ -76,8 +85,8 @@ class MobileSettingsSheet extends ConsumerWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.widgets_outlined),
-            title: const Text('Widget écran d\'accueil'),
-            subtitle: const Text('Épingler MYA sur le launcher'),
+            title: Text(l10n.homeWidgetTitle),
+            subtitle: Text(l10n.homeWidgetSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () async {
               Navigator.of(context).pop();
@@ -87,12 +96,7 @@ class MobileSettingsSheet extends ConsumerWidget {
                 await AndroidHomeWidgetBridge.requestPin();
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Votre launcher ne permet pas l\'ajout automatique. '
-                      'Ajoutez le widget manuellement (appui long → Widgets).',
-                    ),
-                  ),
+                  SnackBar(content: Text(l10n.homeWidgetPinUnsupported)),
                 );
               }
             },
@@ -106,17 +110,20 @@ class MobileSettingsSheet extends ConsumerWidget {
           ),
         ],
         const SizedBox(height: 16),
+        const AppLanguageSettingsSection(),
+        const SizedBox(height: 16),
         const AppAboutFooter(compact: true),
         if (!authConfigured) ...[
           const SizedBox(height: 12),
           Text(
-            'Supabase non configuré dans cette build.',
+            l10n.supabaseNotConfigured,
             style: TextStyle(color: theme.colorScheme.secondary),
           ),
         ] else ...[
           const SizedBox(height: 8),
           Text(
             AuthDisplay.accountSummary(
+              l10n,
               ref.watch(authUserProvider).value,
               isConfigured: authConfigured,
             ),

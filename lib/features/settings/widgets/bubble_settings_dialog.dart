@@ -6,6 +6,7 @@ import 'package:mya/application/authentication/auth_providers.dart';
 import 'package:mya/application/sync/sync_status_provider.dart';
 import 'package:mya/application/updates/update_providers.dart';
 import 'package:mya/features/settings/widgets/app_about_footer.dart';
+import 'package:mya/features/settings/widgets/app_language_settings_section.dart';
 import 'package:mya/features/settings/widgets/app_update_dialog.dart';
 import 'package:mya/application/bubble/always_on_top_service.dart';
 import 'package:mya/application/bubble/bubble_appearance_notifier.dart';
@@ -17,6 +18,7 @@ import 'package:mya/features/settings/widgets/bubble_position_picker.dart';
 import 'package:mya/features/settings/widgets/auth_settings_dialog.dart';
 import 'package:mya/features/settings/widgets/hotkey_settings_dialog.dart';
 import 'package:mya/application/hotkeys/global_hotkey_service.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 import 'package:mya/platform/platform_providers.dart';
 
 /// Paramètres MYA accessibles depuis le panneau (engrenage).
@@ -149,6 +151,7 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final authConfigured = ref.watch(authConfiguredProvider);
     final syncSnapshot = ref.watch(cloudSyncStatusProvider);
     final packageInfo = ref.watch(packageInfoProvider);
@@ -158,18 +161,15 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
       orElse: () => '…',
     );
     final hotkeyLabel = ref.watch(globalHotkeyServiceProvider).displayLabel;
-    final preferCloudSync = ref
-        .watch(deviceSettingsStoreProvider)
-        .readPreferCloudSync();
     final maxWidth = MediaQuery.sizeOf(context).width - 48;
     final dialogWidth = maxWidth.clamp(280.0, 420.0);
 
     return AlertDialog(
-      title: const Row(
+      title: Row(
         children: [
-          Icon(Icons.settings_outlined),
-          SizedBox(width: 8),
-          Text('Paramètres'),
+          const Icon(Icons.settings_outlined),
+          const SizedBox(width: 8),
+          Text(l10n.settingsTitle),
         ],
       ),
       content: SizedBox(
@@ -179,24 +179,9 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (preferCloudSync) ...[
-                Card(
-                  color: theme.colorScheme.primaryContainer.withValues(
-                    alpha: 0.35,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Text(
-                      'Synchronisation cloud demandée à l\'installation. '
-                      'La connexion de compte sera proposée dès que la sync '
-                      'sera disponible (D14–D15).',
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-              Text('Pastille', style: theme.textTheme.titleSmall),
+              const AppLanguageSettingsSection(),
+              const SizedBox(height: 16),
+              Text(l10n.bubbleSectionTitle, style: theme.textTheme.titleSmall),
               const SizedBox(height: 8),
               BubbleIconGallery(
                 selectedIconId: _selectedIconId,
@@ -206,25 +191,21 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
               const SizedBox(height: 16),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Démarrage avec Windows'),
-                subtitle: const Text(
-                  'Lance MYA automatiquement au démarrage du PC.',
-                ),
+                title: Text(l10n.startupWithWindowsTitle),
+                subtitle: Text(l10n.startupWithWindowsSubtitle),
                 value: _startupEnabled,
                 onChanged: _applyStartup,
               ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Toujours au-dessus'),
-                subtitle: const Text(
-                  'Garde MYA visible au-dessus des autres fenêtres.',
-                ),
+                title: Text(l10n.alwaysOnTopTitle),
+                subtitle: Text(l10n.alwaysOnTopSubtitle),
                 value: _alwaysOnTop,
                 onChanged: _applyAlwaysOnTop,
               ),
               const SizedBox(height: 8),
               Text(
-                'Taille de la pastille : ${_bubbleSize.toInt()} px',
+                l10n.bubbleSizeLabel(_bubbleSize.toInt()),
                 style: theme.textTheme.titleSmall,
               ),
               Slider(
@@ -257,7 +238,7 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
               const Divider(height: 24),
               _SettingsLinkTile(
                 icon: Icons.keyboard_outlined,
-                title: 'Raccourci de création rapide',
+                title: l10n.hotkeySettingsTitle,
                 subtitle: hotkeyLabel,
                 onTap: () async {
                   final saved = await HotkeySettingsDialog.show(context);
@@ -269,8 +250,9 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
               ),
               _SettingsLinkTile(
                 icon: Icons.person_outline,
-                title: 'Compte et synchronisation',
+                title: l10n.accountAndSyncTitle,
                 subtitle: syncSnapshot.accountAndSyncSummary(
+                  l10n: l10n,
                   isConfigured: authConfigured,
                 ),
                 onTap: () async {
@@ -283,12 +265,12 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
               ),
               _SettingsLinkTile(
                 icon: Icons.system_update_alt_outlined,
-                title: 'Mises à jour',
-                subtitle: 'Version $installedVersion — GitHub Releases',
+                title: l10n.updatesTitle,
+                subtitle: l10n.updatesSubtitle(installedVersion),
                 onTap: () => unawaited(AppUpdateSettingsDialog.show(context)),
               ),
               const Divider(height: 24),
-              _TrayHelpCard(onShowTrayHint: widget.onShowTrayHint),
+              _TrayHelpCard(l10n: l10n, onShowTrayHint: widget.onShowTrayHint),
               const SizedBox(height: 16),
               const AppAboutFooter(),
             ],
@@ -298,7 +280,7 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
       actions: [
         FilledButton(
           onPressed: () => Navigator.of(context).pop(true),
-          child: const Text('Fermer'),
+          child: Text(l10n.close),
         ),
       ],
     );
@@ -353,8 +335,9 @@ class _SettingsLinkTile extends StatelessWidget {
 }
 
 class _TrayHelpCard extends StatelessWidget {
-  const _TrayHelpCard({required this.onShowTrayHint});
+  const _TrayHelpCard({required this.l10n, required this.onShowTrayHint});
 
+  final MyaLocalizations l10n;
   final Future<void> Function() onShowTrayHint;
 
   @override
@@ -377,24 +360,18 @@ class _TrayHelpCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Icône dans la barre des tâches',
+                  l10n.trayHelpTitle,
                   style: theme.textTheme.titleSmall,
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            const Text(
-              'MYA reste accessible via une icône près de l\'horloge '
-              '(zone de notification). Sur Windows 11, cliquez sur ^ si '
-              'l\'icône est masquée.\n\n'
-              '• Clic gauche : ouvrir MYA\n'
-              '• Clic droit : menu (masquer, démarrage auto, quitter…)',
-            ),
+            Text(l10n.trayHelpBody),
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: () => onShowTrayHint(),
               icon: const Icon(Icons.campaign_outlined, size: 18),
-              label: const Text('Rappel : où trouver l\'icône MYA'),
+              label: Text(l10n.trayHelpButton),
             ),
           ],
         ),

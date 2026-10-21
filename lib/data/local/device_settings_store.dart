@@ -5,7 +5,10 @@ import 'package:mya/application/bubble/bubble_position.dart';
 import 'package:mya/application/hotkeys/global_hotkey_codec.dart';
 import 'package:mya/core/constants/bubble_icon_catalog.dart';
 import 'package:mya/core/constants/device_preference_keys.dart';
+import 'dart:io';
+
 import 'package:mya/core/constants/window_constants.dart';
+import 'package:mya/l10n/app_locale_code.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persistance des paramètres appareil via shared_preferences (ADR-007).
@@ -122,6 +125,31 @@ class DeviceSettingsStore {
 
   bool readPreferCloudSync() {
     return _prefs.getBool(DevicePreferenceKeys.preferCloudSync) ?? false;
+  }
+
+  AppLocaleCode readAppLocale() {
+    final raw = _prefs.getString(DevicePreferenceKeys.appLocale);
+    if (raw == null) {
+      return AppLocaleCode.defaultWhenUnset(android: Platform.isAndroid);
+    }
+    return AppLocaleCode.parse(raw);
+  }
+
+  Future<void> saveAppLocale(AppLocaleCode code) async {
+    await _prefs.setString(DevicePreferenceKeys.appLocale, code.languageCode);
+  }
+
+  bool isCloudSignInPromptPending() {
+    return _prefs.getBool(DevicePreferenceKeys.cloudSignInPromptPending) ??
+        false;
+  }
+
+  Future<void> setCloudSignInPromptPending(bool pending) async {
+    await _prefs.setBool(DevicePreferenceKeys.cloudSignInPromptPending, pending);
+  }
+
+  Future<void> clearCloudSignInPromptPending() async {
+    await _prefs.setBool(DevicePreferenceKeys.cloudSignInPromptPending, false);
   }
 
   HotKey readGlobalHotkey() {

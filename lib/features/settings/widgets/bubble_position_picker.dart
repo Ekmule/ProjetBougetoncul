@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mya/application/bubble/bubble_position.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 class BubblePositionPicker extends StatelessWidget {
   const BubblePositionPicker({
@@ -28,19 +29,21 @@ class BubblePositionPicker extends StatelessWidget {
         ? selectedDisplayId
         : displays.firstOrNull?.id;
 
+    final l10n = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Position de la pastille',
+          l10n.bubblePositionTitle,
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const SizedBox(height: 8),
         if (displays.length > 1)
           DropdownButtonFormField<String>(
             initialValue: effectiveDisplayId,
-            decoration: const InputDecoration(
-              labelText: 'Écran',
+            decoration: InputDecoration(
+              labelText: l10n.displayLabel,
               border: OutlineInputBorder(),
               isDense: true,
             ),
@@ -50,7 +53,7 @@ class BubblePositionPicker extends StatelessWidget {
                   value: display.id,
                   child: Text(
                     display.isPrimary
-                        ? '${display.name} (principal)'
+                        ? '${display.name}${l10n.displayPrimarySuffix}'
                         : display.name,
                   ),
                 ),
@@ -63,17 +66,17 @@ class BubblePositionPicker extends StatelessWidget {
             width: 168,
             child: Column(
               children: [
-                _anchorRow(context, const [
+                _anchorRow(context, l10n, const [
                   BubbleAnchor.topLeft,
                   BubbleAnchor.topCenter,
                   BubbleAnchor.topRight,
                 ]),
-                _anchorRow(context, const [
+                _anchorRow(context, l10n, const [
                   BubbleAnchor.centerLeft,
                   null,
                   BubbleAnchor.centerRight,
                 ]),
-                _anchorRow(context, const [
+                _anchorRow(context, l10n, const [
                   BubbleAnchor.bottomLeft,
                   BubbleAnchor.bottomCenter,
                   BubbleAnchor.bottomRight,
@@ -84,18 +87,16 @@ class BubblePositionPicker extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          selectedAnchor?.label ??
-              'Position libre — choisissez un emplacement fixe',
+          selectedAnchor != null
+              ? l10n.anchorLabel(selectedAnchor!)
+              : l10n.bubbleFreePositionHint,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          title: const Text('Autoriser le déplacement libre'),
-          subtitle: const Text(
-            'Active le glisser-déposer de la pastille. Elle reste toujours '
-            'dans l’écran courant.',
-          ),
+          title: Text(l10n.bubbleFreeDragTitle),
+          subtitle: Text(l10n.bubbleFreeDragSubtitle),
           value: freeDragEnabled,
           onChanged: onFreeDragChanged,
         ),
@@ -103,7 +104,11 @@ class BubblePositionPicker extends StatelessWidget {
     );
   }
 
-  Widget _anchorRow(BuildContext context, List<BubbleAnchor?> anchors) {
+  Widget _anchorRow(
+    BuildContext context,
+    MyaLocalizations l10n,
+    List<BubbleAnchor?> anchors,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -116,7 +121,7 @@ class BubblePositionPicker extends StatelessWidget {
                 : Padding(
                     padding: const EdgeInsets.all(3),
                     child: IconButton(
-                      tooltip: anchor.label,
+                      tooltip: l10n.anchorLabel(anchor),
                       isSelected: anchor == selectedAnchor,
                       style: IconButton.styleFrom(
                         backgroundColor: anchor == selectedAnchor

@@ -1,41 +1,87 @@
 import 'package:mya/domain/entities/auth_user.dart';
+
 import 'package:mya/domain/entities/mya_auth_provider.dart';
 
-/// Libellés FR pour l'état d'authentification (D13).
+import 'package:mya/l10n/mya_localizations.dart';
+
+
+
+/// Libellés pour l'état d'authentification (D13).
+
 abstract final class AuthDisplay {
-  static String accountSummary(AuthUser? user, {required bool isConfigured}) {
+
+  static String accountSummary(
+
+    MyaLocalizations l10n,
+
+    AuthUser? user, {
+
+    required bool isConfigured,
+
+  }) {
+
     if (!isConfigured) {
-      return 'Sync cloud non configurée';
+
+      return l10n.authCloudNotConfigured;
+
     }
+
     if (user == null) {
-      return 'Mode local — non connecté';
+
+      return l10n.authLocalNotSignedIn;
+
     }
+
     final label = user.email ?? user.displayName;
+
     if (label != null && label.isNotEmpty) {
-      return 'Connecté : $label';
+
+      return l10n.authAccountSummary(label, isConfigured: true);
+
     }
-    return 'Connecté';
+
+    return l10n.authSignedIn;
+
   }
 
-  static String trayMenuLabel(AuthUser? user, {required bool isConfigured}) {
+
+
+  static String trayMenuLabel(
+
+    MyaLocalizations l10n,
+
+    AuthUser? user, {
+
+    required bool isConfigured,
+
+  }) {
+
     if (!isConfigured) {
-      return 'Compte : sync non configurée…';
+
+      return l10n.authTrayNotConfigured;
+
     }
+
     if (user == null) {
-      return 'Se connecter…';
+
+      return l10n.authTraySignIn;
+
     }
-    final label = user.email ?? user.displayName ?? 'Compte';
-    if (label.length <= 28) {
-      return 'Compte : $label…';
-    }
-    return 'Compte : ${label.substring(0, 25)}…';
+
+    final label = user.email ?? user.displayName ?? l10n.authConnectedAccount;
+
+    return l10n.authTrayLabel(label, isConfigured: true);
+
   }
 
-  static String providerLabel(MyaAuthProvider provider) {
-    return switch (provider) {
-      MyaAuthProvider.google => 'Continuer avec Google',
-      MyaAuthProvider.apple => 'Continuer avec Apple',
-      MyaAuthProvider.microsoft => 'Continuer avec Microsoft',
-    };
+
+
+  static String providerLabel(MyaLocalizations l10n, MyaAuthProvider provider) {
+
+    return l10n.oauthProviderLabel(provider);
+
   }
+
 }
+
+

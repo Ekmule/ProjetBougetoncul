@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mya/domain/entities/auth_user.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 /// État agrégé affiché dans la pastille, l'aperçu et les paramètres (D4d).
 enum CloudSyncUiState { notConfigured, local, syncing, pending, synced }
@@ -24,20 +25,17 @@ class CloudSyncSnapshot {
     };
   }
 
-  String statusLabel() {
-    return switch (state) {
-      CloudSyncUiState.notConfigured => 'Sync cloud non configurée',
-      CloudSyncUiState.local => 'Mode local',
-      CloudSyncUiState.syncing => 'Synchronisation…',
-      CloudSyncUiState.pending => 'En attente cloud',
-      CloudSyncUiState.synced => 'Synchronisé',
-    };
+  String statusLabel(MyaLocalizations l10n) {
+    return l10n.syncStatusLabel(state);
   }
 
-  String accountAndSyncSummary({required bool isConfigured}) {
-    if (!isConfigured) return 'Sync cloud non configurée';
-    if (user == null) return 'Mode local — non connecté';
-    final account = user!.email ?? user!.displayName ?? 'Compte connecté';
-    return 'Connecté : $account\n${statusLabel()}';
+  String accountAndSyncSummary({
+    required MyaLocalizations l10n,
+    required bool isConfigured,
+  }) {
+    if (!isConfigured) return l10n.syncNotConfigured;
+    if (user == null) return l10n.authLocalNotSignedIn;
+    final account = user!.email ?? user!.displayName ?? l10n.authConnectedAccount;
+    return '${l10n.authAccountSummary(account, isConfigured: true)}\n${statusLabel(l10n)}';
   }
 }

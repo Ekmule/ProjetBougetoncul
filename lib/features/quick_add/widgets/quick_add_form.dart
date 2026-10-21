@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:mya/core/constants/task_categories.dart';
 import 'package:mya/domain/entities/task.dart';
 import 'package:mya/features/quick_add/models/quick_add_input.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 /// Formulaire de création rapide — 1 saisie + validation (spec §12).
 ///
@@ -68,6 +69,7 @@ class _QuickAddFormState extends State<QuickAddForm> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Shortcuts(
       shortcuts: {
@@ -92,7 +94,7 @@ class _QuickAddFormState extends State<QuickAddForm> {
             children: [
               if (!widget.dense)
                 Text(
-                  'Que dois-je retenir ?',
+                  l10n.quickAddPrompt,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -103,15 +105,15 @@ class _QuickAddFormState extends State<QuickAddForm> {
                 focusNode: _focusNode,
                 decoration: InputDecoration(
                   hintText: widget.dense
-                      ? '+ Ajouter un pense-bête'
-                      : 'Acheter câble USB-C…',
+                      ? l10n.quickAddHintDense
+                      : l10n.quickAddHintFull,
                   prefixIcon: widget.dense
                       ? const Icon(Icons.add, size: 22)
                       : null,
                   suffixIcon: widget.dense
                       ? IconButton(
                           icon: const Icon(Icons.send_rounded),
-                          tooltip: 'Ajouter (Entrée)',
+                          tooltip: l10n.quickAddTooltipEnter,
                           onPressed: _submit,
                         )
                       : null,
@@ -131,7 +133,9 @@ class _QuickAddFormState extends State<QuickAddForm> {
                     size: 18,
                   ),
                   label: Text(
-                    _showOptions ? 'Masquer les options' : 'Plus d\'options',
+                    _showOptions
+                        ? l10n.quickAddHideOptions
+                        : l10n.quickAddShowOptions,
                   ),
                 ),
                 if (_showOptions) ...[
@@ -143,7 +147,7 @@ class _QuickAddFormState extends State<QuickAddForm> {
                       for (final category in TaskCategoryDisplay.displayOrder)
                         ChoiceChip(
                           label: Text(
-                            category.defaultLabel,
+                            l10n.categoryLabel(category),
                             style: const TextStyle(fontSize: 11),
                           ),
                           selected: _category == category,
@@ -162,18 +166,18 @@ class _QuickAddFormState extends State<QuickAddForm> {
                     if (widget.onCancel != null)
                       TextButton(
                         onPressed: widget.onCancel,
-                        child: const Text('Annuler'),
+                        child: Text(l10n.cancel),
                       ),
                     const SizedBox(width: 8),
                     FilledButton(
                       onPressed: _submit,
-                      child: const Text('Ajouter'),
+                      child: Text(l10n.add),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Entrée = ajouter · Échap = annuler',
+                  l10n.quickAddKeyboardHint,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: Colors.white54,
                   ),

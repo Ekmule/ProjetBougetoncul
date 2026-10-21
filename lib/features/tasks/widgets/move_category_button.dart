@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mya/core/constants/task_categories.dart';
 import 'package:mya/domain/entities/task.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 /// Menu de déplacement vers une autre catégorie (D6).
 class MoveCategoryButton extends StatelessWidget {
@@ -16,7 +17,7 @@ class MoveCategoryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<TaskCategoryId>(
-      tooltip: 'Déplacer vers…',
+      tooltip: context.l10n.moveCategoryTooltip,
       icon: const Icon(Icons.drive_file_move_outline, size: 20),
       onSelected: onMove,
       itemBuilder: (context) {
@@ -35,7 +36,7 @@ class MoveCategoryButton extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      category.defaultLabel,
+                      context.l10n.categoryLabel(category),
                       style: const TextStyle(fontSize: 13),
                     ),
                   ),

@@ -6,6 +6,8 @@ import 'package:mya/core/constants/auth_constants.dart';
 import 'package:mya/data/remote/auth_user_mapper.dart';
 import 'package:mya/domain/entities/auth_user.dart' as domain;
 import 'package:mya/domain/entities/mya_auth_provider.dart';
+import 'package:mya/l10n/app_locale_code.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 import 'package:mya/platform/android/android_supabase_oauth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -31,9 +33,15 @@ class SupabaseAuthService implements AuthService {
   }
 
   @override
-  Future<void> signInWithProvider(MyaAuthProvider provider) async {
+  Future<void> signInWithProvider(
+    MyaAuthProvider provider, {
+    AppLocaleCode? locale,
+  }) async {
+    final l10n = MyaLocalizations.lookup(
+      locale ?? AppLocaleCode.defaultWhenUnset(android: Platform.isAndroid),
+    );
     if (Platform.isAndroid) {
-      await AndroidSupabaseOAuth.signIn(_auth, provider);
+      await AndroidSupabaseOAuth.signIn(_auth, provider, l10n: l10n);
       return;
     }
 

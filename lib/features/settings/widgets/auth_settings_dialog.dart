@@ -8,6 +8,8 @@ import 'package:mya/application/authentication/auth_providers.dart';
 import 'package:mya/application/sync/sync_status_provider.dart';
 import 'package:mya/domain/entities/mya_auth_provider.dart';
 import 'package:mya/features/shared/widgets/cloud_sync_badge.dart';
+import 'package:mya/l10n/app_locale_code.dart';
+import 'package:mya/l10n/mya_localizations.dart';
 
 /// Connexion / déconnexion OAuth Supabase (D13).
 class AuthSettingsDialog extends ConsumerStatefulWidget {
@@ -30,23 +32,27 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
   bool _busy = false;
 
   Future<void> _signIn(MyaAuthProvider provider) async {
+    final l10n = context.l10n;
     setState(() {
       _busy = true;
       _error = null;
-      _info = Platform.isAndroid
-          ? 'Une fenêtre de connexion va s\'ouvrir.'
-          : 'Un navigateur va s\'ouvrir. Revenez ici après la connexion.';
+      _info = Platform.isAndroid ? l10n.authSignInAndroid : l10n.authSignInDesktop;
     });
 
     try {
-      await ref.read(authServiceProvider).signInWithProvider(provider);
+      await ref.read(authServiceProvider).signInWithProvider(
+            provider,
+            locale: AppLocaleCode.parse(
+              Localizations.localeOf(context).languageCode,
+            ),
+          );
       if (!mounted) return;
       if (Platform.isAndroid && ref.read(authUserProvider).value != null) {
         Navigator.of(context).pop(true);
         return;
       }
       setState(() {
-        _info = 'Terminez la connexion dans le navigateur, puis revenez à MYA.';
+        _info = l10n.authFinishInBrowser;
       });
     } on AuthNotConfiguredException catch (error) {
       setState(() => _error = error.message);
@@ -71,7 +77,7 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } catch (error) {
-      setState(() => _error = 'Déconnexion impossible.');
+      setState(() => _error = context.l10n.authSignOutFailed);
     } finally {
       if (mounted) {
         setState(() => _busy = false);
@@ -81,6 +87,7 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final configured = ref.watch(authConfiguredProvider);
     final authAsync = ref.watch(authUserProvider);
     final user = authAsync.value;
@@ -95,14 +102,14 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
     });
 
     return AlertDialog(
-      title: const Text('Compte et synchronisation'),
+      title: Text(l10n.authDialogTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              AuthDisplay.accountSummary(user, isConfigured: configured),
+              AuthDisplay.accountSummary(l10n, user, isConfigured: configured),
               style: Theme.of(context).textTheme.titleSmall,
             ),
             if (syncSnapshot.showsConnectedBadge) ...[
@@ -110,15 +117,11 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
               CloudSyncStatusChip(snapshot: syncSnapshot),
             ],
             const SizedBox(height: 12),
-            const Text(
-              'MYA fonctionne sans compte. Connectez-vous uniquement '
-              'pour synchroniser vos tâches entre appareils (D14).',
-            ),
+            Text(l10n.authDialogBody),
             if (!configured) ...[
               const SizedBox(height: 12),
               Text(
-                'Cette build n\'a pas de clés Supabase. '
-                'Voir docs/database.md pour la configuration.',
+                l10n.authNoSupabaseBuild,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.secondary,
                 ),
@@ -131,7 +134,7 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: OutlinedButton(
                     onPressed: _busy ? null : () => _signIn(provider),
-                    child: Text(AuthDisplay.providerLabel(provider)),
+                    child: Text(AuthDisplay.providerLabel(l10n, provider)),
                   ),
                 ),
             ],
@@ -139,7 +142,7 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
               const SizedBox(height: 16),
               FilledButton.tonal(
                 onPressed: _busy ? null : _signOut,
-                child: const Text('Se déconnecter'),
+                child: Text(l10n.authSignOut),
               ),
             ],
             if (_info != null) ...[
@@ -159,7 +162,7 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
       actions: [
         TextButton(
           onPressed: _busy ? null : () => Navigator.of(context).pop(false),
-          child: const Text('Fermer'),
+          child: Text(l10n.close),
         ),
       ],
     );
