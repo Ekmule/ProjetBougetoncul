@@ -51,4 +51,55 @@ void main() {
 
     expect(service.clearPlannedDate(task, now: today).plannedDate, isNull);
   });
+
+  test('super alerte se déclenche le jour prévu puis une fois en retard', () {
+    final task = Task.createNew(
+      id: 't1',
+      title: 'Urgent',
+      plannedDate: today,
+      superAlertEnabled: true,
+      now: today,
+    );
+
+    expect(service.isSuperAlertDue(task, today), isTrue);
+
+    final acknowledgedToday = service.acknowledgeSuperAlert(
+      task,
+      now: today.add(const Duration(hours: 10)),
+    );
+    expect(service.isSuperAlertDue(acknowledgedToday, today), isFalse);
+
+    final tomorrow = today.add(const Duration(days: 1));
+    expect(service.isSuperAlertDue(acknowledgedToday, tomorrow), isTrue);
+
+    final acknowledgedOverdue = service.acknowledgeSuperAlert(
+      acknowledgedToday,
+      now: tomorrow,
+    );
+    expect(
+      service.isSuperAlertDue(
+        acknowledgedOverdue,
+        tomorrow.add(const Duration(days: 1)),
+      ),
+      isFalse,
+    );
+  });
+
+  test('changer la date réarme la super alerte', () {
+    final task = Task.createNew(
+      id: 't1',
+      title: 'Test',
+      plannedDate: today,
+      superAlertEnabled: true,
+      now: today,
+    ).copyWith(superAlertAcknowledgedAt: today);
+
+    final updated = service.setPlannedDate(
+      task,
+      today.add(const Duration(days: 1)),
+      now: today,
+    );
+
+    expect(updated.superAlertAcknowledgedAt, isNull);
+  });
 }

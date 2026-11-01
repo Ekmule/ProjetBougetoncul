@@ -64,4 +64,9 @@ gh auth login
 ## Juridique / editeur
 
 MYA est presente dans l'app comme edite par **Zonakron edition** (copyright dans les parametres).  
+Guide confidentialite et RGPD (consentement cloud, sous-traitants, checklist) : `docs/privacy-rgpd.md`.
+
+## Mise a jour in-app Windows
+
+L'installateur telecharge depuis GitHub **ne doit pas** verifier la presence du dossier `build\windows\...` sur le PC utilisateur (erreur « Build introuvable »). Si une release ancienne contient encore ce bug, republiez un `MYA-Setup-*.exe` compile avec le script Inno a jour.  
 Sur le **Play Store**, le nom affiche est celui du **compte developpeur** Google ; une mention (c) dans l'app reste recommandee mais n'est pas substitut aux CGU / fiche store.

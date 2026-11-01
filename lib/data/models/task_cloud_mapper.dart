@@ -14,6 +14,10 @@ abstract final class TaskCloudMapper {
       'category': task.category.dbValue,
       'planned_date': DateCodec.toPlannedDateString(task.plannedDate),
       'reminder_at': _toTimestamp(task.reminderAt),
+      'super_alert_enabled': task.superAlertEnabled,
+      'super_alert_acknowledged_at': _toTimestamp(
+        task.superAlertAcknowledgedAt,
+      ),
       'sort_order': task.sortOrder,
       'sync_version': task.syncVersion,
       'created_at': _toTimestamp(task.createdAt),
@@ -33,6 +37,10 @@ abstract final class TaskCloudMapper {
       'category': task.category.dbValue,
       'planned_date': DateCodec.toPlannedDateString(task.plannedDate),
       'reminder_at': _toTimestamp(task.reminderAt),
+      'super_alert_enabled': task.superAlertEnabled,
+      'super_alert_acknowledged_at': _toTimestamp(
+        task.superAlertAcknowledgedAt,
+      ),
       'sort_order': task.sortOrder,
       'sync_version': task.syncVersion,
       'created_at': _toTimestamp(task.createdAt),
@@ -54,6 +62,10 @@ abstract final class TaskCloudMapper {
         json['planned_date'] as String?,
       ),
       reminderAt: _fromTimestamp(json['reminder_at']),
+      superAlertEnabled: json['super_alert_enabled'] as bool? ?? false,
+      superAlertAcknowledgedAt: _fromTimestamp(
+        json['super_alert_acknowledged_at'],
+      ),
       sortOrder: (json['sort_order'] as num).toInt(),
       syncVersion: (json['sync_version'] as num).toInt(),
       createdAt: _fromRequiredTimestamp(json['created_at']),

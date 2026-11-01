@@ -22,6 +22,7 @@ class TaskPanel extends StatelessWidget {
     this.onClearPlannedDate,
     this.onSetReminder,
     this.onClearReminder,
+    this.onSetSuperAlert,
     this.onEditTitle,
     this.onEditTaskRequested,
     this.onDelete,
@@ -41,10 +42,12 @@ class TaskPanel extends StatelessWidget {
   final void Function(String id) onComplete;
   final void Function(String id)? onReopen;
   final void Function(String id, TaskCategoryId category)? onMoveCategory;
-  final void Function(String id, DateTime date)? onSetPlannedDate;
+  final void Function(String id, DateTime date, bool superAlert)?
+  onSetPlannedDate;
   final void Function(String id)? onClearPlannedDate;
   final void Function(String id, DateTime when)? onSetReminder;
   final void Function(String id)? onClearReminder;
+  final void Function(String id, bool enabled)? onSetSuperAlert;
   final Future<void> Function(String id, String title)? onEditTitle;
   final void Function(Task task)? onEditTaskRequested;
   final Future<void> Function(String id)? onDelete;
@@ -73,6 +76,7 @@ class TaskPanel extends StatelessWidget {
       onClearPlannedDate: onClearPlannedDate,
       onSetReminder: onSetReminder,
       onClearReminder: onClearReminder,
+      onSetSuperAlert: onSetSuperAlert,
       onEditTitle: onEditTitle,
       onEditTaskRequested: onEditTaskRequested,
       onDelete: onDelete,

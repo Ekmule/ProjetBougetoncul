@@ -13,6 +13,9 @@ class TaskEntries extends Table {
   TextColumn get category => text()();
   TextColumn get plannedDate => text().nullable()();
   IntColumn get reminderAt => integer().nullable()();
+  BoolColumn get superAlertEnabled =>
+      boolean().withDefault(const Constant(false))();
+  IntColumn get superAlertAcknowledgedAt => integer().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   IntColumn get syncVersion => integer().withDefault(const Constant(1))();
   IntColumn get createdAt => integer()();

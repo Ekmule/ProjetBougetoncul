@@ -22,6 +22,7 @@ class TaskListTile extends StatelessWidget {
     this.onClearPlannedDate,
     this.onSetReminder,
     this.onClearReminder,
+    this.onSetSuperAlert,
     this.onEditTitle,
     this.onEditTaskRequested,
     this.onDelete,
@@ -36,10 +37,12 @@ class TaskListTile extends StatelessWidget {
   final void Function(String id) onComplete;
   final void Function(String id)? onReopen;
   final void Function(String id, TaskCategoryId category)? onMoveCategory;
-  final void Function(String id, DateTime date)? onSetPlannedDate;
+  final void Function(String id, DateTime date, bool superAlert)?
+  onSetPlannedDate;
   final void Function(String id)? onClearPlannedDate;
   final void Function(String id, DateTime when)? onSetReminder;
   final void Function(String id)? onClearReminder;
+  final void Function(String id, bool enabled)? onSetSuperAlert;
   final Future<void> Function(String id, String title)? onEditTitle;
   final void Function(Task task)? onEditTaskRequested;
   final Future<void> Function(String id)? onDelete;
@@ -113,7 +116,8 @@ class TaskListTile extends StatelessWidget {
         !isCompleted &&
         task.isActive &&
         onSetReminder != null &&
-        onClearReminder != null;
+        onClearReminder != null &&
+        onSetSuperAlert != null;
     final canReopen = isCompleted && task.isCompleted && onReopen != null;
     final canEditTask =
         enableTaskEdit &&
@@ -176,14 +180,19 @@ class TaskListTile extends StatelessWidget {
                 if (canEditDate)
                   TaskPlannedDateButton(
                     task: task,
-                    onSetDate: (date) => onSetPlannedDate!(task.id, date),
+                    onSetDate: (date, superAlert) =>
+                        onSetPlannedDate!(task.id, date, superAlert),
                     onClearDate: () => onClearPlannedDate!(task.id),
+                    onSetSuperAlert: (enabled) =>
+                        onSetSuperAlert?.call(task.id, enabled),
                   ),
                 if (canEditReminder)
                   TaskReminderButton(
                     task: task,
                     onSetReminder: (when) => onSetReminder!(task.id, when),
                     onClearReminder: () => onClearReminder!(task.id),
+                    onSetSuperAlert: (enabled) =>
+                        onSetSuperAlert!(task.id, enabled),
                   ),
                 if (canMove)
                   MoveCategoryButton(

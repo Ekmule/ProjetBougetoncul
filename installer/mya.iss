@@ -334,15 +334,10 @@ end;
 function InitializeSetup(): Boolean;
 begin
   FreshInstall := not GetInstalledVersion(InstalledVersion, InstalledDirectory);
-
-  if not DirExists(ExpandConstant('{#BuildDir}')) then
-  begin
-    MsgBox('Build introuvable. Exécutez d''abord :' + #13#10 +
-      '  flutter build windows --release', mbError, MB_OK);
-    Result := False;
-  end
-  else
-    Result := True;
+  // Ne pas tester {#BuildDir} ici : ce chemin n'existe que sur la machine de
+  // compilation. L'installateur distribué (GitHub Releases) embarque déjà les
+  // fichiers ; ISCC échoue en amont si le build release est absent.
+  Result := True;
 end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;

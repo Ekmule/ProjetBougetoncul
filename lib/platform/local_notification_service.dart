@@ -10,7 +10,7 @@ import 'package:mya/platform/timezone_config.dart';
 /// Notifications locales via flutter_local_notifications (ADR-013).
 class LocalNotificationService implements NotificationService {
   LocalNotificationService({FlutterLocalNotificationsPlugin? plugin})
-      : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
+    : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   final FlutterLocalNotificationsPlugin _plugin;
   var _initialized = false;
@@ -25,7 +25,9 @@ class LocalNotificationService implements NotificationService {
 
     await configureLocalTimeZone();
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const darwinSettings = DarwinInitializationSettings();
     const windowsSettings = WindowsInitializationSettings(
       appName: 'MYA',
@@ -45,7 +47,8 @@ class LocalNotificationService implements NotificationService {
     if (Platform.isAndroid) {
       await _plugin
           .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(
             const AndroidNotificationChannel(
               _channelId,
@@ -53,17 +56,18 @@ class LocalNotificationService implements NotificationService {
               description: _channelDescription,
             ),
           );
-
       await _plugin
           .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.requestNotificationsPermission();
     }
 
     if (!kIsWeb && Platform.isIOS) {
       await _plugin
           .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
+            IOSFlutterLocalNotificationsPlugin
+          >()
           ?.requestPermissions(alert: true, badge: true, sound: true);
     }
 
@@ -117,10 +121,7 @@ class LocalNotificationService implements NotificationService {
   }
 
   @override
-  Future<void> showInfo({
-    required String title,
-    required String body,
-  }) async {
+  Future<void> showInfo({required String title, required String body}) async {
     _assertInitialized();
 
     try {

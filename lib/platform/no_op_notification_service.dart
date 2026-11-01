@@ -19,8 +19,5 @@ class NoOpNotificationService implements NotificationService {
   Future<void> cancelReminder(String taskId) async {}
 
   @override
-  Future<void> showInfo({
-    required String title,
-    required String body,
-  }) async {}
+  Future<void> showInfo({required String title, required String body}) async {}
 }

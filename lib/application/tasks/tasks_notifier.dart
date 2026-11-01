@@ -130,12 +130,20 @@ class TasksNotifier extends Notifier<List<Task>> {
   }
 
   /// Assigne une date planifiée (sans heure).
-  Future<void> setTaskPlannedDate(String id, DateTime date) async {
+  Future<void> setTaskPlannedDate(
+    String id,
+    DateTime date, {
+    bool? superAlert,
+  }) async {
     final task = await _repository.findById(id);
     if (task == null || !task.isActive) return;
 
     final dateService = ref.read(taskDateServiceProvider);
-    await _repository.updateTask(dateService.setPlannedDate(task, date));
+    var updated = dateService.setPlannedDate(task, date);
+    if (superAlert != null) {
+      updated = dateService.setSuperAlert(updated, superAlert);
+    }
+    await _repository.updateTask(updated);
     _requestSync();
   }
 
@@ -176,6 +184,31 @@ class TasksNotifier extends Notifier<List<Task>> {
     await _repository.updateTask(updated);
     _requestSync();
     await ref.read(reminderServiceProvider).syncForTask(updated);
+  }
+
+  Future<void> acknowledgeSuperAlert(String id) async {
+    final task = await _repository.findById(id);
+    if (task == null || !task.isActive) return;
+
+    final dateService = ref.read(taskDateServiceProvider);
+    final updated = dateService.acknowledgeSuperAlert(task);
+    if (updated == task) return;
+
+    await _repository.updateTask(updated);
+    _requestSync();
+  }
+
+  Future<Task?> setTaskSuperAlert(String id, bool enabled) async {
+    final task = await _repository.findById(id);
+    if (task == null || !task.isActive) return null;
+
+    final dateService = ref.read(taskDateServiceProvider);
+    final updated = dateService.setSuperAlert(task, enabled);
+    if (updated == task) return updated;
+
+    await _repository.updateTask(updated);
+    _requestSync();
+    return updated;
   }
 
   /// Purge automatique des tâches terminées hors rétention (D8).

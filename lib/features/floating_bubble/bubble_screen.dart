@@ -21,6 +21,7 @@ import 'package:mya/features/tasks/widgets/task_edit_dialog.dart';
 import 'package:mya/application/authentication/auth_display.dart';
 import 'package:mya/application/authentication/auth_providers.dart';
 import 'package:mya/application/localization/app_locale_provider.dart';
+import 'package:mya/application/reminders/reminder_providers.dart';
 import 'package:mya/l10n/app_locale_code.dart';
 import 'package:mya/l10n/mya_localizations.dart';
 import 'package:mya/application/sync/sync_status_provider.dart';
@@ -32,6 +33,7 @@ import 'package:mya/features/settings/widgets/auth_settings_dialog.dart';
 import 'package:mya/features/settings/widgets/bubble_icon_picker_dialog.dart';
 import 'package:mya/features/settings/widgets/bubble_settings_dialog.dart';
 import 'package:mya/features/settings/widgets/hotkey_settings_dialog.dart';
+import 'package:mya/features/super_alert/super_alert_dialog.dart';
 import 'package:mya/platform/platform_providers.dart';
 import 'package:mya/platform/tray_service.dart';
 import 'package:mya/platform/window_service.dart';
@@ -139,8 +141,9 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
     return TrayMenuState(
       tooltip: l10n.trayTooltip,
       openLabel: l10n.trayOpenMya,
-      toggleVisibleLabel:
-          ui.isVisible ? l10n.trayHideBubble : l10n.trayShowBubble,
+      toggleVisibleLabel: ui.isVisible
+          ? l10n.trayHideBubble
+          : l10n.trayShowBubble,
       toggleAotLabel: ui.alwaysOnTop ? l10n.trayAotOn : l10n.trayAotOff,
       toggleStartupLabel: settings.startupEnabled
           ? l10n.trayStartupOn
@@ -385,7 +388,41 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
   }
 
   void _onBubbleTap() {
-    unawaited(_openFullPanel());
+    unawaited(_openPanelAndShowPendingAlert());
+  }
+
+  Future<void> _openPanelAndShowPendingAlert() async {
+    await _openFullPanel();
+    if (!mounted) return;
+    ref.invalidate(pendingSuperAlertProvider);
+    final alert = ref.read(pendingSuperAlertProvider);
+    if (alert != null) {
+      _modalDialogsOpen++;
+      try {
+        await SuperAlertDialog.show(context, alert);
+      } finally {
+        _modalDialogsOpen--;
+      }
+    }
+  }
+
+  Future<void> _setSuperAlertAndMaybeShow(String id, bool enabled) async {
+    final task = await ref
+        .read(tasksProvider.notifier)
+        .setTaskSuperAlert(id, enabled);
+    if (!mounted ||
+        !enabled ||
+        task == null ||
+        !const TaskDateService().isSuperAlertDue(task, DateTime.now())) {
+      return;
+    }
+
+    _modalDialogsOpen++;
+    try {
+      await SuperAlertDialog.show(context, task);
+    } finally {
+      _modalDialogsOpen--;
+    }
   }
 
   Future<void> _openFullPanel() async {
@@ -636,9 +673,9 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
                       onMoveCategory: (id, category) => ref
                           .read(tasksProvider.notifier)
                           .moveTaskToCategory(id, category),
-                      onSetPlannedDate: (id, date) => ref
+                      onSetPlannedDate: (id, date, superAlert) => ref
                           .read(tasksProvider.notifier)
-                          .setTaskPlannedDate(id, date),
+                          .setTaskPlannedDate(id, date, superAlert: superAlert),
                       onClearPlannedDate: (id) => ref
                           .read(tasksProvider.notifier)
                           .clearTaskPlannedDate(id),
@@ -648,6 +685,8 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
                       onClearReminder: (id) => ref
                           .read(tasksProvider.notifier)
                           .clearTaskReminder(id),
+                      onSetSuperAlert: (id, enabled) =>
+                          unawaited(_setSuperAlertAndMaybeShow(id, enabled)),
                       onEditTaskRequested: (task) =>
                           unawaited(_handlePreviewTaskTap(task)),
                       onToggleAlwaysOnTop: () =>
@@ -676,9 +715,9 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
                       onMoveCategory: (id, category) => ref
                           .read(tasksProvider.notifier)
                           .moveTaskToCategory(id, category),
-                      onSetPlannedDate: (id, date) => ref
+                      onSetPlannedDate: (id, date, superAlert) => ref
                           .read(tasksProvider.notifier)
-                          .setTaskPlannedDate(id, date),
+                          .setTaskPlannedDate(id, date, superAlert: superAlert),
                       onClearPlannedDate: (id) => ref
                           .read(tasksProvider.notifier)
                           .clearTaskPlannedDate(id),
@@ -688,6 +727,8 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
                       onClearReminder: (id) => ref
                           .read(tasksProvider.notifier)
                           .clearTaskReminder(id),
+                      onSetSuperAlert: (id, enabled) =>
+                          unawaited(_setSuperAlertAndMaybeShow(id, enabled)),
                       onEditTitle: (id, title) => ref
                           .read(tasksProvider.notifier)
                           .updateTaskTitle(id, title),

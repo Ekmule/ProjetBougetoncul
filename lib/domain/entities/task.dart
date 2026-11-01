@@ -25,6 +25,8 @@ class Task extends Equatable {
     this.userId,
     this.plannedDate,
     this.reminderAt,
+    this.superAlertEnabled = false,
+    this.superAlertAcknowledgedAt,
     this.completedAt,
     this.deletedAt,
   });
@@ -41,6 +43,12 @@ class Task extends Equatable {
   /// Rappel notification (date + heure).
   final DateTime? reminderAt;
 
+  /// Affiche l'alerte renforcée lorsque [reminderAt] est atteint.
+  final bool superAlertEnabled;
+
+  /// Date d'acquittement de la super alerte courante.
+  final DateTime? superAlertAcknowledgedAt;
+
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? completedAt;
@@ -56,13 +64,18 @@ class Task extends Equatable {
     TaskCategoryId category = TaskCategoryId.next,
     DateTime? plannedDate,
     DateTime? reminderAt,
+    bool superAlertEnabled = false,
     String? userId,
     int sortOrder = 0,
     DateTime? now,
   }) {
     final trimmed = title.trim();
     if (trimmed.isEmpty) {
-      throw ArgumentError.value(title, 'title', 'Le titre ne peut pas être vide.');
+      throw ArgumentError.value(
+        title,
+        'title',
+        'Le titre ne peut pas être vide.',
+      );
     }
 
     final timestamp = now ?? DateTime.now();
@@ -75,6 +88,7 @@ class Task extends Equatable {
       category: category,
       plannedDate: plannedDate?.dateOnly,
       reminderAt: reminderAt,
+      superAlertEnabled: superAlertEnabled,
       createdAt: timestamp,
       updatedAt: timestamp,
       sortOrder: sortOrder,
@@ -141,15 +155,22 @@ class Task extends Equatable {
     TaskCategoryId? category,
     DateTime? plannedDate,
     DateTime? reminderAt,
+    bool? superAlertEnabled,
+    DateTime? superAlertAcknowledgedAt,
     int? sortOrder,
     DateTime? now,
     bool clearPlannedDate = false,
     bool clearReminderAt = false,
+    bool clearSuperAlertAcknowledgedAt = false,
   }) {
     _assertNotDeleted();
 
     if (title != null && title.trim().isEmpty) {
-      throw ArgumentError.value(title, 'title', 'Le titre ne peut pas être vide.');
+      throw ArgumentError.value(
+        title,
+        'title',
+        'Le titre ne peut pas être vide.',
+      );
     }
 
     final timestamp = now ?? DateTime.now();
@@ -159,12 +180,15 @@ class Task extends Equatable {
       category: category,
       plannedDate: plannedDate?.dateOnly ?? _unset,
       reminderAt: reminderAt ?? _unset,
+      superAlertEnabled: superAlertEnabled,
+      superAlertAcknowledgedAt: superAlertAcknowledgedAt ?? _unset,
       sortOrder: sortOrder,
       updatedAt: timestamp,
       syncVersion: syncVersion + 1,
       syncStatus: SyncStatus.pending,
       clearPlannedDate: clearPlannedDate,
       clearReminderAt: clearReminderAt,
+      clearSuperAlertAcknowledgedAt: clearSuperAlertAcknowledgedAt,
     );
   }
 
@@ -175,6 +199,8 @@ class Task extends Equatable {
     TaskCategoryId? category,
     Object? plannedDate = _unset,
     Object? reminderAt = _unset,
+    bool? superAlertEnabled,
+    Object? superAlertAcknowledgedAt = _unset,
     DateTime? createdAt,
     DateTime? updatedAt,
     Object? completedAt = _unset,
@@ -184,6 +210,7 @@ class Task extends Equatable {
     SyncStatus? syncStatus,
     bool clearPlannedDate = false,
     bool clearReminderAt = false,
+    bool clearSuperAlertAcknowledgedAt = false,
     bool clearCompletedAt = false,
     bool clearDeletedAt = false,
   }) {
@@ -196,25 +223,31 @@ class Task extends Equatable {
       plannedDate: clearPlannedDate
           ? null
           : plannedDate == _unset
-              ? this.plannedDate
-              : (plannedDate as DateTime?)?.dateOnly,
+          ? this.plannedDate
+          : (plannedDate as DateTime?)?.dateOnly,
       reminderAt: clearReminderAt
           ? null
           : reminderAt == _unset
-              ? this.reminderAt
-              : reminderAt as DateTime?,
+          ? this.reminderAt
+          : reminderAt as DateTime?,
+      superAlertEnabled: superAlertEnabled ?? this.superAlertEnabled,
+      superAlertAcknowledgedAt: clearSuperAlertAcknowledgedAt
+          ? null
+          : superAlertAcknowledgedAt == _unset
+          ? this.superAlertAcknowledgedAt
+          : superAlertAcknowledgedAt as DateTime?,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       completedAt: clearCompletedAt
           ? null
           : completedAt == _unset
-              ? this.completedAt
-              : completedAt as DateTime?,
+          ? this.completedAt
+          : completedAt as DateTime?,
       deletedAt: clearDeletedAt
           ? null
           : deletedAt == _unset
-              ? this.deletedAt
-              : deletedAt as DateTime?,
+          ? this.deletedAt
+          : deletedAt as DateTime?,
       sortOrder: sortOrder ?? this.sortOrder,
       syncVersion: syncVersion ?? this.syncVersion,
       syncStatus: syncStatus ?? this.syncStatus,
@@ -229,19 +262,21 @@ class Task extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        title,
-        status,
-        category,
-        plannedDate,
-        reminderAt,
-        createdAt,
-        updatedAt,
-        completedAt,
-        deletedAt,
-        sortOrder,
-        syncVersion,
-        syncStatus,
-      ];
+    id,
+    userId,
+    title,
+    status,
+    category,
+    plannedDate,
+    reminderAt,
+    superAlertEnabled,
+    superAlertAcknowledgedAt,
+    createdAt,
+    updatedAt,
+    completedAt,
+    deletedAt,
+    sortOrder,
+    syncVersion,
+    syncStatus,
+  ];
 }

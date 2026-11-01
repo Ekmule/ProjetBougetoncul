@@ -16,6 +16,10 @@ abstract final class TaskMapper {
       reminderAt: row.reminderAt == null
           ? null
           : DateCodec.fromUtcMillis(row.reminderAt!),
+      superAlertEnabled: row.superAlertEnabled,
+      superAlertAcknowledgedAt: row.superAlertAcknowledgedAt == null
+          ? null
+          : DateCodec.fromUtcMillis(row.superAlertAcknowledgedAt!),
       sortOrder: row.sortOrder,
       syncVersion: row.syncVersion,
       createdAt: DateCodec.fromUtcMillis(row.createdAt),
@@ -42,6 +46,12 @@ abstract final class TaskMapper {
         task.reminderAt == null
             ? null
             : DateCodec.toUtcMillis(task.reminderAt!),
+      ),
+      superAlertEnabled: Value(task.superAlertEnabled),
+      superAlertAcknowledgedAt: Value(
+        task.superAlertAcknowledgedAt == null
+            ? null
+            : DateCodec.toUtcMillis(task.superAlertAcknowledgedAt!),
       ),
       sortOrder: Value(task.sortOrder),
       syncVersion: Value(task.syncVersion),
@@ -71,6 +81,12 @@ abstract final class TaskMapper {
         task.reminderAt == null
             ? null
             : DateCodec.toUtcMillis(task.reminderAt!),
+      ),
+      superAlertEnabled: Value(task.superAlertEnabled),
+      superAlertAcknowledgedAt: Value(
+        task.superAlertAcknowledgedAt == null
+            ? null
+            : DateCodec.toUtcMillis(task.superAlertAcknowledgedAt!),
       ),
       sortOrder: Value(task.sortOrder),
       syncVersion: Value(task.syncVersion),
