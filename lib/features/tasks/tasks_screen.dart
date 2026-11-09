@@ -8,6 +8,7 @@ import 'package:mya/application/tasks/tasks_notifier.dart';
 import 'package:mya/application/reminders/reminder_providers.dart';
 import 'package:mya/application/sync/sync_status_provider.dart';
 import 'package:mya/data/providers/device_settings_providers.dart';
+import 'package:mya/core/configuration/product_config.dart';
 import 'package:mya/domain/services/task_date_service.dart';
 import 'package:mya/features/onboarding/android_widget_pin_dialog.dart';
 import 'package:mya/features/onboarding/cloud_sign_in_prompt.dart';
@@ -36,7 +37,9 @@ class _TasksScreenState extends ConsumerState<TasksScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await maybeShowCloudSignInPrompt(context, ref);
+      if (ProductConfig.supportsCloud) {
+        await maybeShowCloudSignInPrompt(context, ref);
+      }
       if (!mounted) return;
       await _maybeOfferWidgetPin();
       if (!mounted) return;
@@ -115,7 +118,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen>
         title: const Text('MYA'),
         centerTitle: false,
         actions: [
-          if (syncSnapshot.showsConnectedBadge)
+          if (ProductConfig.supportsCloud && syncSnapshot.showsConnectedBadge)
             Padding(
               padding: const EdgeInsets.only(right: 4),
               child: Center(

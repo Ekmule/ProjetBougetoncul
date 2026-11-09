@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:launch_at_startup/launch_at_startup.dart';
+import 'package:mya/core/configuration/product_config.dart';
 import 'package:mya/platform/startup_service.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 /// Démarrage Windows via launch_at_startup (ADR-011).
 class WindowsStartupService implements StartupService {
@@ -12,11 +12,10 @@ class WindowsStartupService implements StartupService {
   Future<void> initialize() async {
     if (_initialized || !Platform.isWindows) return;
 
-    final packageInfo = await PackageInfo.fromPlatform();
     launchAtStartup.setup(
-      appName: packageInfo.appName,
+      appName: ProductConfig.displayName,
       appPath: Platform.resolvedExecutable,
-      packageName: packageInfo.packageName,
+      packageName: ProductConfig.windowsMutexId,
     );
     _initialized = true;
   }

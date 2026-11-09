@@ -35,7 +35,8 @@ class CloudSyncSnapshot {
   }) {
     if (!isConfigured) return l10n.syncNotConfigured;
     if (user == null) return l10n.authLocalNotSignedIn;
-    final account = user!.email ?? user!.displayName ?? l10n.authConnectedAccount;
+    final account =
+        user!.email ?? user!.displayName ?? l10n.authConnectedAccount;
     return '${l10n.authAccountSummary(account, isConfigured: true)}\n${statusLabel(l10n)}';
   }
 }

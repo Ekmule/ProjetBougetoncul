@@ -53,8 +53,9 @@ class BubbleUiState {
 }
 
 /// Contrôle l'état visuel de la pastille Windows.
-final bubbleUiProvider =
-    NotifierProvider<BubbleUiNotifier, BubbleUiState>(BubbleUiNotifier.new);
+final bubbleUiProvider = NotifierProvider<BubbleUiNotifier, BubbleUiState>(
+  BubbleUiNotifier.new,
+);
 
 class BubbleUiNotifier extends Notifier<BubbleUiState> {
   @override
@@ -89,10 +90,7 @@ class BubbleUiNotifier extends Notifier<BubbleUiState> {
   }
 
   void openQuickAdd() {
-    _openVisible(
-      viewMode: BubbleViewMode.panel,
-      showQuickAdd: true,
-    );
+    _openVisible(viewMode: BubbleViewMode.panel, showQuickAdd: true);
   }
 
   void closeQuickAdd() {
@@ -107,10 +105,7 @@ class BubbleUiNotifier extends Notifier<BubbleUiState> {
   }
 
   void openPanel() {
-    _openVisible(
-      viewMode: BubbleViewMode.panel,
-      showQuickAdd: false,
-    );
+    _openVisible(viewMode: BubbleViewMode.panel, showQuickAdd: false);
   }
 
   void openPreview() {
@@ -123,10 +118,7 @@ class BubbleUiNotifier extends Notifier<BubbleUiState> {
   ///
   /// Cette invariance évite un état incohérent où Windows affiche encore la
   /// pastille alors que la préférence persistée vaut `bubbleVisible=false`.
-  void _openVisible({
-    required BubbleViewMode viewMode,
-    bool? showQuickAdd,
-  }) {
+  void _openVisible({required BubbleViewMode viewMode, bool? showQuickAdd}) {
     final wasHidden = !state.isVisible;
     state = state.copyWith(
       isVisible: true,

@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:mya/application/updates/app_version.dart';
 import 'package:mya/application/updates/github_release_update_service.dart';
 import 'package:mya/application/updates/update_asset_kind.dart';
@@ -56,5 +60,48 @@ void main() {
       release.version,
       const AppVersion(major: 1, minor: 0, patch: 2, build: 3),
     );
+  });
+
+  test('sélectionne la dernière release du produit demandé', () async {
+    final client = MockClient((request) async {
+      expect(request.url.path, '/repos/owner/repo/releases');
+      return http.Response(
+        jsonEncode([
+          {
+            'tag_name': 'desktop-v9.0.0-build1',
+            'assets': [
+              {
+                'name': 'MYA-Desktop-Setup-9.0.0.exe',
+                'browser_download_url': 'https://example.com/desktop.exe',
+              },
+            ],
+          },
+          {
+            'tag_name': 'complete-v1.2.0-build4',
+            'assets': [
+              {
+                'name': 'MYA-Complete-Setup-1.2.0-build4.exe',
+                'browser_download_url': 'https://example.com/complete.exe',
+              },
+            ],
+          },
+        ]),
+        200,
+      );
+    });
+    final service = GitHubReleaseUpdateService(
+      owner: 'owner',
+      repo: 'repo',
+      assetKind: UpdateAssetKind.windowsInstaller,
+      releaseTagPrefix: 'complete-v',
+      assetPrefix: 'MYA-Complete-Setup-',
+      client: client,
+    );
+
+    final release = await service.checkForUpdate(
+      const AppVersion(major: 1, minor: 1, patch: 0),
+    );
+
+    expect(release?.fileName, 'MYA-Complete-Setup-1.2.0-build4.exe');
   });
 }

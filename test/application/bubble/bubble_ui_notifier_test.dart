@@ -36,10 +36,7 @@ void main() {
     final state = container.read(bubbleUiProvider);
     expect(state.viewMode, BubbleViewMode.preview);
     expect(state.isVisible, isTrue);
-    expect(
-      preferences.getBool(DevicePreferenceKeys.bubbleVisible),
-      isTrue,
-    );
+    expect(preferences.getBool(DevicePreferenceKeys.bubbleVisible), isTrue);
   });
 
   test('ouvrir panneau rend une pastille masquée visible', () async {

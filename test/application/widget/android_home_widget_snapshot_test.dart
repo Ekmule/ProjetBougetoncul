@@ -83,7 +83,10 @@ void main() {
       now: now,
     );
 
-    expect(snapshot.todayHeadline.length, AndroidHomeWidgetKeys.todayHeadlineMaxLength);
+    expect(
+      snapshot.todayHeadline.length,
+      AndroidHomeWidgetKeys.todayHeadlineMaxLength,
+    );
     expect(snapshot.todayHeadline.endsWith('…'), isTrue);
   });
 }

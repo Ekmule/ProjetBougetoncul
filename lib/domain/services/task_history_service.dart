@@ -28,15 +28,16 @@ class TaskHistoryService {
     DateTime now,
     int retentionDays,
   ) {
-    final visible = tasks
-        .where(
-          (task) =>
-              task.isCompleted &&
-              !task.isDeleted &&
-              isWithinRetention(task, now, retentionDays),
-        )
-        .toList()
-      ..sort((a, b) => b.completedAt!.compareTo(a.completedAt!));
+    final visible =
+        tasks
+            .where(
+              (task) =>
+                  task.isCompleted &&
+                  !task.isDeleted &&
+                  isWithinRetention(task, now, retentionDays),
+            )
+            .toList()
+          ..sort((a, b) => b.completedAt!.compareTo(a.completedAt!));
 
     return visible;
   }

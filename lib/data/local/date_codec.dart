@@ -25,7 +25,8 @@ abstract final class DateCodec {
   }
 
   /// Timestamp UTC en millisecondes depuis epoch.
-  static int toUtcMillis(DateTime dateTime) => dateTime.toUtc().millisecondsSinceEpoch;
+  static int toUtcMillis(DateTime dateTime) =>
+      dateTime.toUtc().millisecondsSinceEpoch;
 
   static DateTime fromUtcMillis(int millis) {
     return DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true).toLocal();

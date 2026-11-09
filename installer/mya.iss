@@ -8,24 +8,41 @@
 #define MyAppBuild "1"
 #endif
 
-#define MyAppName "MYA"
+#ifndef MyAppName
+#define MyAppName "MYA Complete"
+#endif
+#ifndef MyAppId
+#define MyAppId "{{A8C22B55-049E-422F-B30F-863694DE08C8}"
+#endif
+#ifndef MyAppGuid
+#define MyAppGuid "A8C22B55-049E-422F-B30F-863694DE08C8"
+#endif
+#ifndef MyOutputPrefix
+#define MyOutputPrefix "MYA-Complete-Setup-"
+#endif
+#ifndef MyOptionsFolder
+#define MyOptionsFolder "MYA"
+#endif
+#ifndef MyCloudEnabled
+#define MyCloudEnabled "True"
+#endif
 #define MyAppPublisher "MYA"
 #define MyAppExeName "mya.exe"
 #define MyAppVersionFull MyAppVersion + "." + MyAppBuild
 #define BuildDir "..\build\windows\x64\runner\Release"
 ; Inno enregistre la clé avec les accolades autour du GUID.
-#define UninstallRegKey "Software\Microsoft\Windows\CurrentVersion\Uninstall\{{A8C22B55-049E-422F-B30F-863694DE08C8}_is1"
+#define UninstallRegKey "Software\Microsoft\Windows\CurrentVersion\Uninstall\{{" + MyAppGuid + "}_is1"
 ; D1 avait accidentellement ajouté une accolade finale à l'AppId.
 ; Cette clé permet de reconnaître et migrer les installations 1.0.1 concernées.
-#define LegacyMalformedUninstallRegKey "Software\Microsoft\Windows\CurrentVersion\Uninstall\{{A8C22B55-049E-422F-B30F-863694DE08C8}}_is1"
+#define LegacyMalformedUninstallRegKey "Software\Microsoft\Windows\CurrentVersion\Uninstall\{{" + MyAppGuid + "}}_is1"
 
-#define OutputName "MYA-Setup-" + MyAppVersion
+#define OutputName MyOutputPrefix + MyAppVersion
 #if MyAppBuild != "1"
 #define OutputName OutputName + "-build" + MyAppBuild
 #endif
 
 [Setup]
-AppId={{A8C22B55-049E-422F-B30F-863694DE08C8}
+AppId={#MyAppId}
 AppName={#MyAppName}
 AppVersion={#MyAppVersionFull}
 AppVerName={#MyAppName} {#MyAppVersion}
@@ -68,7 +85,7 @@ french.TaskCloudSync=Activer la synchronisation cloud (connexion au premier lanc
 [Tasks]
 Name: "desktopicon"; Description: "{cm:TaskDesktopIcon}"; GroupDescription: "{cm:GroupShortcuts}"; Check: IsFreshInstall
 Name: "startup"; Description: "{cm:TaskStartup}"; GroupDescription: "{cm:GroupOptions}"; Flags: checkedonce; Check: IsFreshInstall
-Name: "cloudsync"; Description: "{cm:TaskCloudSync}"; GroupDescription: "{cm:GroupOptions}"; Flags: unchecked; Check: IsFreshInstall
+Name: "cloudsync"; Description: "{cm:TaskCloudSync}"; GroupDescription: "{cm:GroupOptions}"; Flags: unchecked; Check: IsFreshInstall and IsCloudProduct
 
 [Files]
 Source: "{#BuildDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -149,6 +166,11 @@ begin
   Result := FreshInstall;
 end;
 
+function IsCloudProduct: Boolean;
+begin
+  Result := {#MyCloudEnabled};
+end;
+
 function IsUpgradeInstall: Boolean;
 begin
   Result := not FreshInstall;
@@ -190,7 +212,7 @@ begin
 
   AppLocale := AppLocaleFromInstaller();
 
-  OptionsPath := ExpandConstant('{localappdata}\MYA');
+  OptionsPath := ExpandConstant('{localappdata}\{#MyOptionsFolder}');
   if not DirExists(OptionsPath) then
     ForceDirectories(OptionsPath);
 

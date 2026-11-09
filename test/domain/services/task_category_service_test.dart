@@ -43,16 +43,22 @@ void main() {
       now: now,
     );
 
-    final moved = service.moveToCategory(task, TaskCategoryId.someday, now: now);
+    final moved = service.moveToCategory(
+      task,
+      TaskCategoryId.someday,
+      now: now,
+    );
 
     expect(moved.category, TaskCategoryId.someday);
     expect(moved.plannedDate, isNull);
   });
 
   test('moveToCategory interdit les tâches inactives', () {
-    final task = Task.createNew(id: 't1', title: 'Done', now: now).complete(
+    final task = Task.createNew(
+      id: 't1',
+      title: 'Done',
       now: now,
-    );
+    ).complete(now: now);
 
     expect(
       () => service.moveToCategory(task, TaskCategoryId.next),

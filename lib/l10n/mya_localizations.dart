@@ -160,14 +160,14 @@ class MyaLocalizations {
     required String anchorBottomLeft,
     required String anchorBottomCenter,
     required String anchorBottomRight,
-  })  : _anchorTopLeft = anchorTopLeft,
-        _anchorTopCenter = anchorTopCenter,
-        _anchorTopRight = anchorTopRight,
-        _anchorCenterLeft = anchorCenterLeft,
-        _anchorCenterRight = anchorCenterRight,
-        _anchorBottomLeft = anchorBottomLeft,
-        _anchorBottomCenter = anchorBottomCenter,
-        _anchorBottomRight = anchorBottomRight;
+  }) : _anchorTopLeft = anchorTopLeft,
+       _anchorTopCenter = anchorTopCenter,
+       _anchorTopRight = anchorTopRight,
+       _anchorCenterLeft = anchorCenterLeft,
+       _anchorCenterRight = anchorCenterRight,
+       _anchorBottomLeft = anchorBottomLeft,
+       _anchorBottomCenter = anchorBottomCenter,
+       _anchorBottomRight = anchorBottomRight;
 
   final AppLocaleCode localeCode;
   final String languageLabel;
@@ -392,7 +392,8 @@ class MyaLocalizations {
     return updatesGitHubSubtitle.replaceFirst('{version}', installedVersion);
   }
 
-  String trayHotkeyMenu(String hotkeyLabel) => '$trayHotkeyPrefix $hotkeyLabel…';
+  String trayHotkeyMenu(String hotkeyLabel) =>
+      '$trayHotkeyPrefix $hotkeyLabel…';
 
   String authAccountSummary(String? emailOrName, {required bool isConfigured}) {
     if (!isConfigured) return authCloudNotConfigured;
@@ -483,8 +484,7 @@ class MyaLocalizations {
     editTaskTitle: 'Edit task',
     taskTitleLabel: 'Title',
     nothingHere: 'Nothing here',
-    noActiveTasksPreview:
-        'No active tasks.\nClick to open the full panel.',
+    noActiveTasksPreview: 'No active tasks.\nClick to open the full panel.',
     noActiveTasksFull:
         'No active tasks.\nAdd one above or reopen a completed task.',
     quickAddPrompt: 'What should I remember?',
@@ -513,16 +513,15 @@ class MyaLocalizations {
         'Android will ask you to place it on your home screen.',
     homeWidgetPinAdd: 'Add widget',
     authDialogTitle: 'Account and sync',
-    authDialogBody:
-        'MYA works without an account. Sign in only to sync tasks across devices.',
+    authDialogBody: 'MYA works without an account. Sign in only to sync tasks across devices.',
     authNoSupabaseBuild:
         'This build has no Supabase keys. See docs/database.md for setup.',
     authSignOut: 'Sign out',
     authSignOutFailed: 'Could not sign out.',
     authSignInAndroid: 'A sign-in window will open.',
-    authSignInDesktop:
-        'A browser will open. Return here after signing in.',
-    authFinishInBrowser: 'Finish signing in in the browser, then return to MYA.',
+    authSignInDesktop: 'A browser will open. Return here after signing in.',
+    authFinishInBrowser:
+        'Finish signing in in the browser, then return to MYA.',
     authCloudNotConfigured: 'Cloud sync not configured',
     authLocalNotSignedIn: 'Local mode — not signed in',
     authSignedIn: 'Signed in',
@@ -556,8 +555,7 @@ class MyaLocalizations {
     hotkeyModifierRequired: 'Add at least one modifier (Ctrl, Alt, Shift…).',
     hotkeyDefault: 'Default',
     bubbleIconPickerTitle: 'Choose your bubble',
-    bubbleIconPickerBody:
-        'MYA stays discreet on your desktop. Pick an icon — you can change it later in Settings.',
+    bubbleIconPickerBody: 'MYA stays discreet on your desktop. Pick an icon — you can change it later in Settings.',
     bubblePositionTitle: 'Bubble position',
     displayLabel: 'Display',
     displayPrimarySuffix: ' (primary)',
@@ -662,8 +660,7 @@ class MyaLocalizations {
     nothingHere: 'Rien ici',
     noActiveTasksPreview:
         'Aucune tâche active.\nCliquez pour ouvrir le panneau complet.',
-    noActiveTasksFull:
-        'Aucune tâche active.\nAjoutez-en une ci-dessus ou rouvrez une tâche terminée.',
+    noActiveTasksFull: 'Aucune tâche active.\nAjoutez-en une ci-dessus ou rouvrez une tâche terminée.',
     quickAddPrompt: 'Que dois-je retenir ?',
     quickAddHintDense: '+ Ajouter un pense-bête',
     quickAddHintFull: 'Acheter câble USB-C…',
@@ -728,11 +725,9 @@ class MyaLocalizations {
     updateAlreadyLatest: 'MYA est déjà à jour ({version}).',
     bubbleSectionTitle: 'Pastille',
     startupWithWindowsTitle: 'Démarrage avec Windows',
-    startupWithWindowsSubtitle:
-        'Lance MYA automatiquement au démarrage du PC.',
+    startupWithWindowsSubtitle: 'Lance MYA automatiquement au démarrage du PC.',
     alwaysOnTopTitle: 'Toujours au-dessus',
-    alwaysOnTopSubtitle:
-        'Garde MYA visible au-dessus des autres fenêtres.',
+    alwaysOnTopSubtitle: 'Garde MYA visible au-dessus des autres fenêtres.',
     hotkeySettingsTitle: 'Raccourci de création rapide',
     hotkeyRecordPrompt: 'Appuyez sur la combinaison souhaitée :',
     hotkeyCurrent: 'Actuel :',
@@ -747,8 +742,7 @@ class MyaLocalizations {
     bubblePositionTitle: 'Position de la pastille',
     displayLabel: 'Écran',
     displayPrimarySuffix: ' (principal)',
-    bubbleFreePositionHint:
-        'Position libre — choisissez un emplacement fixe',
+    bubbleFreePositionHint: 'Position libre — choisissez un emplacement fixe',
     bubbleFreeDragTitle: 'Autoriser le déplacement libre',
     bubbleFreeDragSubtitle:
         'Active le glisser-déposer de la pastille. Elle reste toujours '
@@ -765,8 +759,7 @@ class MyaLocalizations {
     trayNotificationBody:
         'Cherchez l\'icône MYA près de l\'horloge (cliquez ^ sur Windows 11). '
         'Clic droit pour le menu complet.',
-    trayTooltip:
-        'MYA — clic gauche : ouvrir · clic droit : menu',
+    trayTooltip: 'MYA — clic gauche : ouvrir · clic droit : menu',
     trayOpenMya: 'Ouvrir MYA',
     trayHideBubble: 'Masquer la pastille',
     trayShowBubble: 'Afficher la pastille',

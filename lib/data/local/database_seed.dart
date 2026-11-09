@@ -6,7 +6,9 @@ import 'package:uuid/uuid.dart';
 /// Données initiales pour le premier lancement.
 abstract final class DatabaseSeeder {
   static Future<void> seedSampleTasksIfEmpty(AppDatabase database) async {
-    final existing = await (database.select(database.taskEntries)..limit(1)).get();
+    final existing = await (database.select(
+      database.taskEntries,
+    )..limit(1)).get();
     if (existing.isNotEmpty) return;
 
     const uuid = Uuid();

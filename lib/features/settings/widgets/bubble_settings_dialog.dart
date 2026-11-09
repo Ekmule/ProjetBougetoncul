@@ -12,6 +12,7 @@ import 'package:mya/application/bubble/always_on_top_service.dart';
 import 'package:mya/application/bubble/bubble_appearance_notifier.dart';
 import 'package:mya/application/bubble/bubble_position.dart';
 import 'package:mya/core/constants/window_constants.dart';
+import 'package:mya/core/configuration/product_config.dart';
 import 'package:mya/data/providers/device_settings_providers.dart';
 import 'package:mya/features/settings/widgets/bubble_icon_gallery.dart';
 import 'package:mya/features/settings/widgets/bubble_position_picker.dart';
@@ -286,21 +287,22 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
                   }
                 },
               ),
-              _SettingsLinkTile(
-                icon: Icons.person_outline,
-                title: l10n.accountAndSyncTitle,
-                subtitle: syncSnapshot.accountAndSyncSummary(
-                  l10n: l10n,
-                  isConfigured: authConfigured,
+              if (ProductConfig.supportsCloud)
+                _SettingsLinkTile(
+                  icon: Icons.person_outline,
+                  title: l10n.accountAndSyncTitle,
+                  subtitle: syncSnapshot.accountAndSyncSummary(
+                    l10n: l10n,
+                    isConfigured: authConfigured,
+                  ),
+                  onTap: () async {
+                    final changed = await AuthSettingsDialog.show(context);
+                    if (changed == true) {
+                      await widget.onAccountChanged();
+                      if (mounted) setState(() {});
+                    }
+                  },
                 ),
-                onTap: () async {
-                  final changed = await AuthSettingsDialog.show(context);
-                  if (changed == true) {
-                    await widget.onAccountChanged();
-                    if (mounted) setState(() {});
-                  }
-                },
-              ),
               _SettingsLinkTile(
                 icon: Icons.system_update_alt_outlined,
                 title: l10n.updatesTitle,

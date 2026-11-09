@@ -21,8 +21,9 @@ final windowServiceProvider = Provider<WindowService>((ref) {
 
 /// Raccourcis globaux Windows (Ctrl+Alt+Space).
 final hotkeyServiceProvider = Provider<HotkeyService>((ref) {
-  final service =
-      Platform.isWindows ? WindowsHotkeyController() : const NoOpHotkeyService();
+  final service = Platform.isWindows
+      ? WindowsHotkeyController()
+      : const NoOpHotkeyService();
   ref.onDispose(() => service.dispose());
   return service;
 });

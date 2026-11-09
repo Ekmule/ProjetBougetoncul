@@ -24,9 +24,7 @@ void main() {
 
   test('mapAuthFailureMessage traduit erreur DNS', () {
     final message = mapAuthFailureMessage(
-      Exception(
-        "Failed host lookup: 'veyatfdofzwghbqhufcw.supabase.co'",
-      ),
+      Exception("Failed host lookup: 'veyatfdofzwghbqhufcw.supabase.co'"),
     );
 
     expect(message, contains('Connexion réseau impossible'));

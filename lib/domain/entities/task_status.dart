@@ -1,9 +1,5 @@
 /// Statut métier d'une tâche — indépendant de la catégorie d'affichage.
-enum TaskStatus {
-  active,
-  completed,
-  deleted,
-}
+enum TaskStatus { active, completed, deleted }
 
 /// Conversion vers/depuis la valeur stockée en base (`active`, `completed`, `deleted`).
 extension TaskStatusDb on TaskStatus {

@@ -4,6 +4,8 @@ import 'package:mya/application/authentication/auth_service.dart';
 import 'package:mya/core/configuration/supabase_config.dart';
 import 'package:mya/core/constants/auth_constants.dart';
 import 'package:mya/data/remote/supabase_auth_service.dart';
+import 'package:mya/data/remote/supabase_task_remote_data_source.dart';
+import 'package:mya/data/remote/task_remote_data_source.dart';
 import 'package:mya/platform/android/android_home_widget_bridge.dart';
 import 'package:mya/platform/windows/windows_auth_protocol.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -45,5 +47,10 @@ abstract final class SupabaseBootstrap {
     }
 
     return SupabaseAuthService();
+  }
+
+  static TaskRemoteDataSource? createTaskRemoteDataSource() {
+    if (!SupabaseConfig.isConfigured) return null;
+    return SupabaseTaskRemoteDataSource(Supabase.instance.client);
   }
 }

@@ -86,7 +86,9 @@ class AppUpdateDialog extends ConsumerWidget {
                     .read(updateCheckProvider.notifier)
                     .installAvailableUpdate(),
           child: Text(
-            Platform.isAndroid ? l10n.updateDownloadInstall : l10n.updateInstall,
+            Platform.isAndroid
+                ? l10n.updateDownloadInstall
+                : l10n.updateInstall,
           ),
         ),
       ],

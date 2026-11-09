@@ -24,10 +24,7 @@ void main() {
     });
 
     test('rejette un titre vide', () {
-      expect(
-        () => Task.createNew(id: 'x', title: '   '),
-        throwsArgumentError,
-      );
+      expect(() => Task.createNew(id: 'x', title: '   '), throwsArgumentError);
     });
   });
 
@@ -35,11 +32,7 @@ void main() {
     test('renseigne completedAt et incrémente syncVersion', () {
       final created = DateTime(2026, 1, 1);
       final completedAt = DateTime(2026, 1, 2);
-      final task = Task.createNew(
-        id: 'task-1',
-        title: 'Test',
-        now: created,
-      );
+      final task = Task.createNew(id: 'task-1', title: 'Test', now: created);
 
       final completed = task.complete(now: completedAt);
 
@@ -72,10 +65,7 @@ void main() {
         now: DateTime(2026, 1, 1),
       );
 
-      final updated = task.touch(
-        title: 'Après',
-        now: DateTime(2026, 1, 2),
-      );
+      final updated = task.touch(title: 'Après', now: DateTime(2026, 1, 2));
 
       expect(updated.title, 'Après');
       expect(updated.syncVersion, 2);

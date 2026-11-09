@@ -7,15 +7,12 @@ abstract final class AuthUserMapper {
     if (user == null) return null;
 
     final metadata = user.userMetadata;
-    final displayName = _readString(metadata, 'full_name') ??
+    final displayName =
+        _readString(metadata, 'full_name') ??
         _readString(metadata, 'name') ??
         _readString(metadata, 'display_name');
 
-    return AuthUser(
-      id: user.id,
-      email: user.email,
-      displayName: displayName,
-    );
+    return AuthUser(id: user.id, email: user.email, displayName: displayName);
   }
 
   static String? _readString(Map<String, dynamic>? map, String key) {

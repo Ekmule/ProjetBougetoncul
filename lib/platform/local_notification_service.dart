@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:mya/core/configuration/product_config.dart';
 import 'package:mya/core/utils/app_logger.dart';
 import 'package:mya/platform/notification_id.dart';
 import 'package:mya/platform/notification_service.dart';
@@ -29,14 +30,14 @@ class LocalNotificationService implements NotificationService {
       '@mipmap/ic_launcher',
     );
     const darwinSettings = DarwinInitializationSettings();
-    const windowsSettings = WindowsInitializationSettings(
-      appName: 'MYA',
-      appUserModelId: 'com.mya.app',
-      guid: 'A8C22B55-049E-422F-B30F-863694DE08C8',
+    final windowsSettings = WindowsInitializationSettings(
+      appName: ProductConfig.displayName,
+      appUserModelId: ProductConfig.windowsNotificationId,
+      guid: ProductConfig.windowsNotificationGuid,
     );
 
     await _plugin.initialize(
-      settings: const InitializationSettings(
+      settings: InitializationSettings(
         android: androidSettings,
         iOS: darwinSettings,
         macOS: darwinSettings,

@@ -34,6 +34,7 @@ class TrayMenuState {
     required this.toggleStartupLabel,
     required this.hotkeyMenuLabel,
     required this.authLabel,
+    this.showAccount = true,
     required this.quitLabel,
   });
 
@@ -44,5 +45,6 @@ class TrayMenuState {
   final String toggleStartupLabel;
   final String hotkeyMenuLabel;
   final String authLabel;
+  final bool showAccount;
   final String quitLabel;
 }

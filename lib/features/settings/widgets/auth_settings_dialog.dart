@@ -36,11 +36,15 @@ class _AuthSettingsDialogState extends ConsumerState<AuthSettingsDialog> {
     setState(() {
       _busy = true;
       _error = null;
-      _info = Platform.isAndroid ? l10n.authSignInAndroid : l10n.authSignInDesktop;
+      _info = Platform.isAndroid
+          ? l10n.authSignInAndroid
+          : l10n.authSignInDesktop;
     });
 
     try {
-      await ref.read(authServiceProvider).signInWithProvider(
+      await ref
+          .read(authServiceProvider)
+          .signInWithProvider(
             provider,
             locale: AppLocaleCode.parse(
               Localizations.localeOf(context).languageCode,

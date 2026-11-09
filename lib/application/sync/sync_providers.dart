@@ -9,18 +9,25 @@ import 'package:mya/data/local/sync_local_store.dart';
 import 'package:mya/data/local/sync_metadata_store.dart';
 import 'package:mya/data/providers/data_providers.dart';
 import 'package:mya/data/providers/device_settings_providers.dart';
-import 'package:mya/data/remote/supabase_task_remote_data_source.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:mya/data/remote/task_remote_data_source.dart';
+
+/// Adaptateur distant injecté uniquement par MYA Complete.
+final taskRemoteDataSourceProvider = Provider<TaskRemoteDataSource?>(
+  (ref) => null,
+);
 
 final syncServiceProvider = Provider<SyncService>((ref) {
   final authService = ref.watch(authServiceProvider);
-  if (!authService.isConfigured) return const NoOpSyncService();
+  final remote = ref.watch(taskRemoteDataSourceProvider);
+  if (!authService.isConfigured || remote == null) {
+    return const NoOpSyncService();
+  }
 
   final service = TaskSyncService(
     authService,
     SyncLocalStore(ref.watch(appDatabaseProvider)),
     SyncMetadataStore(ref.watch(sharedPreferencesProvider)),
-    SupabaseTaskRemoteDataSource(Supabase.instance.client),
+    remote,
   );
   ref.onDispose(service.dispose);
   return service;

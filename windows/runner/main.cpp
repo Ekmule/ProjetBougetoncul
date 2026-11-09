@@ -4,14 +4,18 @@
 
 #include "flutter_window.h"
 #include "utils.h"
+#ifndef MYA_LOCAL_PRODUCT
 #include "app_links/app_links_plugin_c_api.h"
+#endif
 
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
                       _In_ wchar_t *command_line, _In_ int show_command) {
+#ifndef MYA_LOCAL_PRODUCT
   // OAuth callback : relayer le deep link à l'instance MYA déjà ouverte (D13).
   if (SendAppLinkToInstance()) {
     return EXIT_SUCCESS;
   }
+#endif
 
   // Attach to console when present (e.g., 'flutter run') or create a
   // new console when running with a debugger.

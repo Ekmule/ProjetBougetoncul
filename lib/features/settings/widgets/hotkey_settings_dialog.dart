@@ -97,18 +97,12 @@ class _HotkeySettingsDialogState extends ConsumerState<HotkeySettingsDialog> {
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: _resetToDefault,
-          child: Text(l10n.hotkeyDefault),
-        ),
+        TextButton(onPressed: _resetToDefault, child: Text(l10n.hotkeyDefault)),
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
           child: Text(l10n.cancel),
         ),
-        FilledButton(
-          onPressed: _save,
-          child: Text(l10n.save),
-        ),
+        FilledButton(onPressed: _save, child: Text(l10n.save)),
       ],
     );
   }

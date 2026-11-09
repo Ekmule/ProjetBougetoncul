@@ -6,6 +6,7 @@ plugins {
 
 android {
     namespace = "com.mya.mya"
+    flavorDimensions += "product"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -28,6 +29,18 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    productFlavors {
+        create("complete") {
+            dimension = "product"
+            manifestPlaceholders["appName"] = "MYA Complete"
+        }
+        create("mobile") {
+            dimension = "product"
+            applicationIdSuffix = ".mobile"
+            manifestPlaceholders["appName"] = "MYA Mobile"
+        }
     }
 
     buildTypes {

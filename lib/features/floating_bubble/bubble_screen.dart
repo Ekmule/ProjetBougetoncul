@@ -9,6 +9,7 @@ import 'package:mya/application/bubble/bubble_ui_notifier.dart';
 import 'package:mya/application/tasks/task_list_state.dart';
 import 'package:mya/application/tasks/tasks_notifier.dart';
 import 'package:mya/core/constants/window_constants.dart';
+import 'package:mya/core/configuration/product_config.dart';
 import 'package:mya/data/providers/device_settings_providers.dart';
 import 'package:mya/domain/entities/task.dart';
 import 'package:mya/domain/services/task_date_service.dart';
@@ -154,6 +155,7 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
         authUser,
         isConfigured: authConfigured,
       ),
+      showAccount: ProductConfig.supportsCloud,
       quitLabel: l10n.trayQuit,
     );
   }
@@ -268,7 +270,9 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
       }
     }
     if (!mounted) return;
-    await maybeShowCloudSignInPrompt(context, ref);
+    if (ProductConfig.supportsCloud) {
+      await maybeShowCloudSignInPrompt(context, ref);
+    }
     if (!mounted) return;
     await _maybeShowTrayHintOnFirstLaunch();
   }
@@ -553,11 +557,13 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
       await _refreshTrayMenu();
     });
 
-    ref.listen(authUserProvider, (previous, next) async {
-      if (previous?.value?.id != next.value?.id) {
-        await _refreshTrayMenu();
-      }
-    });
+    if (ProductConfig.supportsCloud) {
+      ref.listen(authUserProvider, (previous, next) async {
+        if (previous?.value?.id != next.value?.id) {
+          await _refreshTrayMenu();
+        }
+      });
+    }
 
     ref.listen(bubbleUiProvider, (previous, next) async {
       BubbleDebug.log('ui mode change', {

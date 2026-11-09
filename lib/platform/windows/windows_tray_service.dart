@@ -40,7 +40,8 @@ class WindowsTrayService with TrayListener implements TrayService {
           MenuItem(key: 'toggle_aot', label: state.toggleAotLabel),
           MenuItem(key: 'toggle_startup', label: state.toggleStartupLabel),
           MenuItem(key: 'configure_hotkey', label: state.hotkeyMenuLabel),
-          MenuItem(key: 'configure_account', label: state.authLabel),
+          if (state.showAccount)
+            MenuItem(key: 'configure_account', label: state.authLabel),
           MenuItem.separator(),
           MenuItem(key: 'quit', label: state.quitLabel),
         ],

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mya/app/router.dart';
 import 'package:mya/app/theme.dart';
 import 'package:mya/application/localization/app_locale_provider.dart';
+import 'package:mya/core/configuration/product_config.dart';
 import 'package:mya/l10n/app_locale_code.dart';
 import 'package:mya/l10n/mya_localizations.dart';
 import 'package:mya/application/sync/sync_providers.dart';
@@ -16,14 +17,16 @@ class MyaApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(syncLifecycleProvider);
+    if (ProductConfig.supportsCloud) {
+      ref.watch(syncLifecycleProvider);
+    }
     ref.watch(updateLifecycleProvider);
     ref.watch(androidHomeWidgetLifecycleProvider);
     final router = ref.watch(goRouterProvider);
     final locale = ref.watch(appLocaleProvider);
 
     return MaterialApp.router(
-      title: 'MYA',
+      title: ProductConfig.displayName,
       debugShowCheckedModeBanner: false,
       theme: MyaTheme.dark(),
       locale: locale,

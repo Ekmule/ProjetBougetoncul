@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mya/domain/entities/task.dart';
 import 'package:mya/features/quick_add/models/quick_add_input.dart';
 import 'package:mya/features/quick_add/widgets/quick_add_form.dart';
+
 import '../../test_app_shell.dart';
+
 import 'package:mya/l10n/app_locale_code.dart';
 import 'package:mya/l10n/mya_localizations.dart';
 
@@ -14,9 +16,7 @@ void main() {
     await tester.pumpWidget(
       testMaterialApp(
         home: Scaffold(
-          body: QuickAddForm(
-            onSubmit: (input) => submitted = input,
-          ),
+          body: QuickAddForm(onSubmit: (input) => submitted = input),
         ),
       ),
     );
@@ -37,9 +37,7 @@ void main() {
     await tester.pumpWidget(
       testMaterialApp(
         home: Scaffold(
-          body: QuickAddForm(
-            onSubmit: (input) => submitted = input,
-          ),
+          body: QuickAddForm(onSubmit: (input) => submitted = input),
         ),
       ),
     );

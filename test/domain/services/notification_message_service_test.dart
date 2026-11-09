@@ -8,9 +8,6 @@ void main() {
   test('reminderBody utilise le style normal', () {
     final task = Task.createNew(id: 't1', title: 'Faire les portraits');
 
-    expect(
-      service.reminderBody(task),
-      "N'oublie pas : Faire les portraits.",
-    );
+    expect(service.reminderBody(task), "N'oublie pas : Faire les portraits.");
   });
 }

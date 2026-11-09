@@ -60,10 +60,7 @@ abstract final class AndroidSupabaseOAuth {
     } on AuthSignInException {
       rethrow;
     } catch (error) {
-      throw AuthSignInException(
-        mapAuthFailureMessage(error),
-        cause: error,
-      );
+      throw AuthSignInException(mapAuthFailureMessage(error), cause: error);
     }
   }
 

@@ -29,17 +29,17 @@ void main() {
     await notifier.addTask('Portraits');
     await pumpEventQueue();
 
-    final task = container.read(tasksProvider).firstWhere(
-          (t) => t.title == 'Portraits',
-        );
+    final task = container
+        .read(tasksProvider)
+        .firstWhere((t) => t.title == 'Portraits');
 
     await notifier.setTaskPlannedDate(task.id, today);
     await pumpEventQueue();
 
     const displayService = TaskDisplayService();
-    final updated = container.read(tasksProvider).firstWhere(
-          (t) => t.id == task.id,
-        );
+    final updated = container
+        .read(tasksProvider)
+        .firstWhere((t) => t.id == task.id);
 
     expect(
       displayService.displayCategory(updated, today),

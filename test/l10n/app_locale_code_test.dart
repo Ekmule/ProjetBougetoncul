@@ -8,13 +8,7 @@ void main() {
   });
 
   test('defaut sans cle historique', () {
-    expect(
-      AppLocaleCode.defaultWhenUnset(android: false),
-      AppLocaleCode.fr,
-    );
-    expect(
-      AppLocaleCode.defaultWhenUnset(android: true),
-      AppLocaleCode.en,
-    );
+    expect(AppLocaleCode.defaultWhenUnset(android: false), AppLocaleCode.fr);
+    expect(AppLocaleCode.defaultWhenUnset(android: true), AppLocaleCode.en);
   });
 }

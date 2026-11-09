@@ -8,6 +8,7 @@ import 'package:mya/application/tasks/task_category_service_provider.dart';
 import 'package:mya/application/tasks/task_date_service_provider.dart';
 import 'package:mya/application/tasks/task_history_providers.dart';
 import 'package:mya/core/utils/app_logger.dart';
+import 'package:mya/core/configuration/product_config.dart';
 import 'package:mya/core/utils/debug_trace.dart';
 import 'package:mya/data/providers/data_providers.dart';
 import 'package:mya/domain/entities/task.dart';
@@ -236,6 +237,7 @@ class TasksNotifier extends Notifier<List<Task>> {
   }
 
   void _requestSync() {
+    if (!ProductConfig.supportsCloud) return;
     if (ref.read(authUserProvider).value == null) return;
     unawaited(
       ref.read(syncServiceProvider).syncNow().catchError((

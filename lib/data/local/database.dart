@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:mya/core/configuration/product_config.dart';
 import 'package:mya/data/local/tables.dart';
 
 part 'database.g.dart';
@@ -31,6 +32,6 @@ class AppDatabase extends _$AppDatabase {
   );
 
   static QueryExecutor _openConnection() {
-    return driftDatabase(name: 'mya');
+    return driftDatabase(name: ProductConfig.databaseName);
   }
 }

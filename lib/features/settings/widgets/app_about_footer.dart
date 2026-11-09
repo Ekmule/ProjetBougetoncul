@@ -17,7 +17,11 @@ class AppAboutFooter extends StatelessWidget {
     );
 
     if (compact) {
-      return Text(l10n.copyrightLine, style: style, textAlign: TextAlign.center);
+      return Text(
+        l10n.copyrightLine,
+        style: style,
+        textAlign: TextAlign.center,
+      );
     }
 
     return Column(

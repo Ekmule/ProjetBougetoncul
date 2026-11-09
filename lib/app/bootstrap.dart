@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_alone/flutter_alone.dart';
 import 'package:mya/application/bubble/bubble_device_settings.dart';
+import 'package:mya/core/configuration/product_config.dart';
 import 'package:mya/data/local/database.dart';
 import 'package:mya/data/local/database_seed.dart';
 import 'package:mya/core/install/install_options.dart';
@@ -13,7 +14,6 @@ import 'package:mya/platform/no_op_startup_service.dart';
 import 'package:mya/platform/startup_service.dart';
 import 'package:mya/platform/window_service.dart';
 import 'package:mya/application/authentication/auth_service.dart';
-import 'package:mya/data/remote/supabase_bootstrap.dart';
 import 'package:mya/platform/windows/windows_startup_service.dart';
 import 'package:mya/platform/windows/windows_window_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,8 +56,11 @@ class AppBootstrapResult {
 class AppBootstrap {
   const AppBootstrap._();
 
-  static Future<AppBootstrapResult> initialize() async {
+  static Future<AppBootstrapResult> initialize({
+    Future<AuthService> Function()? authServiceFactory,
+  }) async {
     WidgetsFlutterBinding.ensureInitialized();
+    ProductConfig.validatePlatform();
 
     final database = AppDatabase();
     await DatabaseSeeder.seedSampleTasksIfEmpty(database);
@@ -65,6 +68,9 @@ class AppBootstrap {
     final notificationService = LocalNotificationService();
     await notificationService.initialize();
 
+    if (ProductConfig.product != MyaProduct.complete) {
+      SharedPreferences.setPrefix('mya_${ProductConfig.productKey}.');
+    }
     final sharedPreferences = await SharedPreferences.getInstance();
     final settingsStore = DeviceSettingsStore(sharedPreferences);
     var bubbleSettings = settingsStore.readBubbleSettings();
@@ -75,7 +81,7 @@ class AppBootstrap {
         await settingsStore.saveStartupEnabled(true);
       }
       await settingsStore.saveAppLocale(installOptions.appLocale);
-      if (installOptions.preferCloudSync) {
+      if (ProductConfig.supportsCloud && installOptions.preferCloudSync) {
         await settingsStore.savePreferCloudSync(true);
         await settingsStore.setCloudSignInPromptPending(true);
       }
@@ -93,7 +99,10 @@ class AppBootstrap {
     await startupService.initialize();
     await startupService.setEnabled(bubbleSettings.startupEnabled);
 
-    final authService = await SupabaseBootstrap.createAuthService();
+    final authService =
+        ProductConfig.supportsCloud && authServiceFactory != null
+        ? await authServiceFactory()
+        : const NoOpAuthService();
 
     if (Platform.isWindows) {
       await _ensureSingleInstance();
@@ -136,11 +145,11 @@ class AppBootstrap {
   /// Une seule instance de MYA sur Windows (ADR-012).
   static Future<void> _ensureSingleInstance() async {
     final aloneConfig = FlutterAloneConfig.forWindows(
-      windowsConfig: const DefaultWindowsMutexConfig(
-        packageId: 'com.mya.app',
-        appName: 'MYA',
+      windowsConfig: DefaultWindowsMutexConfig(
+        packageId: ProductConfig.windowsMutexId,
+        appName: ProductConfig.displayName,
       ),
-      windowConfig: const WindowConfig(windowTitle: 'MYA'),
+      windowConfig: WindowConfig(windowTitle: ProductConfig.displayName),
       duplicateCheckConfig: const DuplicateCheckConfig(
         // Un hot restart réexécute main() dans le même processus. Activer le
         // mutex en debug ferait prendre MYA pour sa propre seconde instance.

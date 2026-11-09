@@ -32,7 +32,10 @@ void main() {
 
     await container.read(globalHotkeyProvider.notifier).setHotkey(custom);
 
-    expect(container.read(globalHotkeyProvider).physicalKey, PhysicalKeyboardKey.keyA);
+    expect(
+      container.read(globalHotkeyProvider).physicalKey,
+      PhysicalKeyboardKey.keyA,
+    );
     expect(prefs.getString(DevicePreferenceKeys.globalHotkey), isNotNull);
   });
 }

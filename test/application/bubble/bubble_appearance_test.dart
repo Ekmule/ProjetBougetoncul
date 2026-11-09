@@ -11,7 +11,10 @@ void main() {
 
   test('BubbleIconCatalog resolve les ids inconnus vers icon01', () {
     expect(BubbleIconCatalog.resolve('unknown').id, 'icon01');
-    expect(BubbleIconCatalog.resolve('icon03').assetPath, 'assets/icons/Icon03.png');
+    expect(
+      BubbleIconCatalog.resolve('icon03').assetPath,
+      'assets/icons/Icon03.png',
+    );
   });
 
   test('bubbleSizeStep couvre la plage min-max', () {

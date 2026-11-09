@@ -1,9 +1,5 @@
 /// État de synchronisation locale — colonne `sync_status` (Drift uniquement).
-enum SyncStatus {
-  synced,
-  pending,
-  failed,
-}
+enum SyncStatus { synced, pending, failed }
 
 extension SyncStatusDb on SyncStatus {
   String get dbValue => name;

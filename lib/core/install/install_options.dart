@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:mya/core/constants/bubble_icon_catalog.dart';
+import 'package:mya/core/configuration/product_config.dart';
 import 'package:mya/l10n/app_locale_code.dart';
 import 'package:mya/core/utils/app_logger.dart';
 
@@ -61,6 +62,7 @@ class InstallOptions {
     if (appData == null || appData.isEmpty) {
       throw StateError('LOCALAPPDATA introuvable.');
     }
-    return '$appData\\MYA\\install_options.json';
+    return '$appData\\${ProductConfig.installOptionsFolder}'
+        '\\install_options.json';
   }
 }

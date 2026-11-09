@@ -52,10 +52,7 @@ class _QuickAddFormState extends State<QuickAddForm> {
   }
 
   void _submit() {
-    final input = QuickAddInput(
-      title: _controller.text,
-      category: _category,
-    );
+    final input = QuickAddInput(title: _controller.text, category: _category);
     if (!input.isValid) return;
 
     widget.onSubmit(input);
@@ -124,12 +121,9 @@ class _QuickAddFormState extends State<QuickAddForm> {
               if (widget.showCategoryOptions) ...[
                 const SizedBox(height: 8),
                 TextButton.icon(
-                  onPressed: () =>
-                      setState(() => _showOptions = !_showOptions),
+                  onPressed: () => setState(() => _showOptions = !_showOptions),
                   icon: Icon(
-                    _showOptions
-                        ? Icons.expand_less
-                        : Icons.expand_more,
+                    _showOptions ? Icons.expand_less : Icons.expand_more,
                     size: 18,
                   ),
                   label: Text(
@@ -169,10 +163,7 @@ class _QuickAddFormState extends State<QuickAddForm> {
                         child: Text(l10n.cancel),
                       ),
                     const SizedBox(width: 8),
-                    FilledButton(
-                      onPressed: _submit,
-                      child: Text(l10n.add),
-                    ),
+                    FilledButton(onPressed: _submit, child: Text(l10n.add)),
                   ],
                 ),
                 const SizedBox(height: 4),

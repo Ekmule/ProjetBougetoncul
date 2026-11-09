@@ -10,10 +10,7 @@ class WindowsHotkeyController implements HotkeyService {
   }) async {
     await hotKeyManager.unregisterAll();
 
-    await hotKeyManager.register(
-      hotKey,
-      keyDownHandler: (_) => onTriggered(),
-    );
+    await hotKeyManager.register(hotKey, keyDownHandler: (_) => onTriggered());
   }
 
   @override

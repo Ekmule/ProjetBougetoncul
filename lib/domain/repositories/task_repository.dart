@@ -1,4 +1,5 @@
 import 'package:mya/domain/entities/task.dart';
+
 /// Contrat de persistance des tâches — implémenté par Drift.
 abstract class TaskRepository {
   Stream<List<Task>> watchTasks();

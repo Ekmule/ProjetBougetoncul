@@ -4,8 +4,9 @@ import 'package:mya/core/constants/global_hotkey_defaults.dart';
 import 'package:mya/data/providers/device_settings_providers.dart';
 
 /// Raccourci global actif — lu/écrit via shared_preferences (D12).
-final globalHotkeyProvider =
-    NotifierProvider<GlobalHotkeyNotifier, HotKey>(GlobalHotkeyNotifier.new);
+final globalHotkeyProvider = NotifierProvider<GlobalHotkeyNotifier, HotKey>(
+  GlobalHotkeyNotifier.new,
+);
 
 class GlobalHotkeyNotifier extends Notifier<HotKey> {
   @override

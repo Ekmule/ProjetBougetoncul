@@ -15,10 +15,9 @@ class GlobalHotkeyService {
   String get displayLabel => GlobalHotkeyDisplay.format(currentHotkey);
 
   Future<void> registerQuickAddHandler(void Function() onTriggered) async {
-    await _ref.read(hotkeyServiceProvider).registerQuickAdd(
-          hotKey: currentHotkey,
-          onTriggered: onTriggered,
-        );
+    await _ref
+        .read(hotkeyServiceProvider)
+        .registerQuickAdd(hotKey: currentHotkey, onTriggered: onTriggered);
   }
 
   /// Valide qu'un raccourci est utilisable (au moins une touche + modificateur).

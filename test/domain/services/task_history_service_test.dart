@@ -47,11 +47,7 @@ void main() {
     final older = completedTask(completedAt: DateTime(2026, 3, 10));
     final newer = completedTask(completedAt: DateTime(2026, 3, 14));
 
-    final visible = service.filterVisibleCompleted(
-      [older, newer],
-      now,
-      7,
-    );
+    final visible = service.filterVisibleCompleted([older, newer], now, 7);
 
     expect(visible.first.id, newer.id);
   });

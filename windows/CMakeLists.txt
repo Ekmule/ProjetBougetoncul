@@ -31,6 +31,9 @@ set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
 
 # Use Unicode for all projects.
 add_definitions(-DUNICODE -D_UNICODE)
+if("$ENV{MYA_LOCAL_PRODUCT}" STREQUAL "true")
+  add_definitions(-DMYA_LOCAL_PRODUCT)
+endif()
 
 # Compilation settings that should be applied to most targets.
 #

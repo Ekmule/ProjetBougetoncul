@@ -6,17 +6,15 @@ import 'package:mya/domain/services/task_display_service.dart';
 
 /// Vue calculée de la liste (catégories d'affichage + terminées).
 class TaskListState {
-  const TaskListState({
-    required this.grouped,
-    required this.completed,
-  });
+  const TaskListState({required this.grouped, required this.completed});
 
   final Map<TaskCategoryId, List<Task>> grouped;
   final List<Task> completed;
 }
 
-final taskDisplayServiceProvider =
-    Provider<TaskDisplayService>((ref) => const TaskDisplayService());
+final taskDisplayServiceProvider = Provider<TaskDisplayService>(
+  (ref) => const TaskDisplayService(),
+);
 
 /// Regroupe les tâches visibles pour l'UI (pastille + écran principal).
 final taskListStateProvider = Provider<TaskListState>((ref) {
@@ -28,10 +26,6 @@ final taskListStateProvider = Provider<TaskListState>((ref) {
 
   return TaskListState(
     grouped: displayService.groupActiveTasks(tasks, now),
-    completed: historyService.filterVisibleCompleted(
-      tasks,
-      now,
-      retentionDays,
-    ),
+    completed: historyService.filterVisibleCompleted(tasks, now, retentionDays),
   );
 });

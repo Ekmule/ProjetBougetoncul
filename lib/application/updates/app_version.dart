@@ -15,12 +15,12 @@ class AppVersion implements Comparable<AppVersion> {
   final int build;
 
   static final RegExp _installerPattern = RegExp(
-    r'^MYA-Setup-(\d+)\.(\d+)\.(\d+)(?:-build(\d+))?\.exe$',
+    r'^MYA-(?:(?:Complete|Desktop)-)?Setup-(\d+)\.(\d+)\.(\d+)(?:-build(\d+))?\.exe$',
     caseSensitive: false,
   );
 
   static final RegExp _androidApkPattern = RegExp(
-    r'^MYA-Android-(\d+)\.(\d+)\.(\d+)(?:-build(\d+))?\.apk$',
+    r'^MYA-(?:(?:Complete|Mobile)-)?Android-(\d+)\.(\d+)\.(\d+)(?:-build(\d+))?\.apk$',
     caseSensitive: false,
   );
 

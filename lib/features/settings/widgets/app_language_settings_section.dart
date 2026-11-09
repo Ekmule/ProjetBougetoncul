@@ -19,7 +19,10 @@ class AppLanguageSettingsSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(strings.languageLabel, style: Theme.of(context).textTheme.titleSmall),
+        Text(
+          strings.languageLabel,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
         const SizedBox(height: 8),
         SegmentedButton<AppLocaleCode>(
           segments: [

@@ -10,10 +10,9 @@ abstract final class QuickAddActions {
   static Future<bool> submit(WidgetRef ref, QuickAddInput input) async {
     if (!input.isValid) return false;
 
-    await ref.read(tasksProvider.notifier).addTask(
-          input.trimmedTitle,
-          category: input.category,
-        );
+    await ref
+        .read(tasksProvider.notifier)
+        .addTask(input.trimmedTitle, category: input.category);
     return true;
   }
 

@@ -1,5 +1,10 @@
 # Publication des versions MYA
 
+> Les trois produits et leurs commandes sont détaillés dans
+> [products.md](products.md). Utiliser désormais
+> `scripts/publish-product-release.ps1`; ce document conserve aussi les
+> informations de transition du produit historique.
+
 Les clients **ne se mettent pas a jour** quand vous faites un `git push`.  
 Ils lisent **GitHub Releases** (`releases/latest`) et comparent la version installee (`pubspec.yaml` -> `version: x.y.z+build`).
 

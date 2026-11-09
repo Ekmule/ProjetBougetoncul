@@ -14,10 +14,7 @@ class BubbleAppearance extends Equatable {
 
   String get assetPath => BubbleIconCatalog.assetPathFor(iconId);
 
-  BubbleAppearance copyWith({
-    double? size,
-    String? iconId,
-  }) {
+  BubbleAppearance copyWith({double? size, String? iconId}) {
     return BubbleAppearance(
       size: size ?? this.size,
       iconId: iconId ?? this.iconId,

@@ -23,7 +23,8 @@ class BubbleIconPickerDialog extends ConsumerStatefulWidget {
       _BubbleIconPickerDialogState();
 }
 
-class _BubbleIconPickerDialogState extends ConsumerState<BubbleIconPickerDialog> {
+class _BubbleIconPickerDialogState
+    extends ConsumerState<BubbleIconPickerDialog> {
   late String _selectedIconId;
 
   @override
@@ -33,7 +34,9 @@ class _BubbleIconPickerDialogState extends ConsumerState<BubbleIconPickerDialog>
   }
 
   Future<void> _confirm() async {
-    await ref.read(bubbleAppearanceProvider.notifier).setIconId(_selectedIconId);
+    await ref
+        .read(bubbleAppearanceProvider.notifier)
+        .setIconId(_selectedIconId);
     await ref.read(deviceSettingsStoreProvider).markOnboardingCompleted();
     if (mounted) {
       Navigator.of(context).pop();
@@ -67,10 +70,7 @@ class _BubbleIconPickerDialogState extends ConsumerState<BubbleIconPickerDialog>
         ),
       ),
       actions: [
-        FilledButton(
-          onPressed: _confirm,
-          child: Text(l10n.continueButton),
-        ),
+        FilledButton(onPressed: _confirm, child: Text(l10n.continueButton)),
       ],
     );
   }

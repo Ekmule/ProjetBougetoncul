@@ -8,6 +8,7 @@ import 'package:mya/domain/entities/task.dart';
 import 'package:mya/data/providers/device_settings_providers.dart';
 import 'package:mya/features/tasks/tasks_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../test_app_shell.dart';
 
 void main() {
@@ -15,9 +16,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
 
-    final emptyGrouped = {
-      for (final id in TaskCategoryId.values) id: <Task>[],
-    };
+    final emptyGrouped = {for (final id in TaskCategoryId.values) id: <Task>[]};
 
     await tester.pumpWidget(
       ProviderScope(
@@ -25,10 +24,7 @@ void main() {
           sharedPreferencesProvider.overrideWithValue(prefs),
           authServiceProvider.overrideWithValue(const NoOpAuthService()),
           taskListStateProvider.overrideWith(
-            (ref) => TaskListState(
-              grouped: emptyGrouped,
-              completed: const [],
-            ),
+            (ref) => TaskListState(grouped: emptyGrouped, completed: const []),
           ),
         ],
         child: testMaterialApp(home: const TasksScreen()),

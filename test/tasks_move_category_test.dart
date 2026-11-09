@@ -26,9 +26,9 @@ void main() {
     await notifier.addTask('Déplacer moi');
     await pumpEventQueue();
 
-    final task = container.read(tasksProvider).firstWhere(
-          (t) => t.title == 'Déplacer moi',
-        );
+    final task = container
+        .read(tasksProvider)
+        .firstWhere((t) => t.title == 'Déplacer moi');
 
     await notifier.moveTaskToCategory(task.id, TaskCategoryId.mustDo);
     await pumpEventQueue();

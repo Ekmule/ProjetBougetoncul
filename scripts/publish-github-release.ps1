@@ -8,6 +8,15 @@ param(
     [switch]$IncludeAndroid
 )
 
+Write-Warning "Script historique : publication de MYA Complete."
+& "$PSScriptRoot\publish-product-release.ps1" `
+    -Product complete `
+    -Notes $Notes `
+    -SkipBuild:$SkipBuild `
+    -Draft:$Draft `
+    -BumpBuild:$BumpBuild
+exit $LASTEXITCODE
+
 $ErrorActionPreference = "Stop"
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $ProjectRoot
