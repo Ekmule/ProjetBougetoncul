@@ -11,6 +11,7 @@ abstract final class DevicePreferenceKeys {
   static const globalHotkey = 'global_hotkey';
   static const bubbleSize = 'bubble_size';
   static const bubbleIconId = 'bubble_icon_id';
+  static const superAlertScreenFraction = 'super_alert_screen_fraction';
   static const trayHintShown = 'tray_hint_shown';
   static const preferCloudSync = 'prefer_cloud_sync';
   static const appLocale = 'app_locale';

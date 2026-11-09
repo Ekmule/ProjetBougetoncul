@@ -77,4 +77,18 @@ void main() {
     await store.markOnboardingCompleted();
     expect(store.isOnboardingCompleted(), isTrue);
   });
+
+  test('taille de super alerte vaut 100 % par défaut et se persiste', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final store = DeviceSettingsStore(prefs);
+
+    expect(store.readSuperAlertScreenFraction(), 1);
+
+    await store.saveSuperAlertScreenFraction(0.5);
+    expect(store.readSuperAlertScreenFraction(), 0.5);
+
+    await store.saveSuperAlertScreenFraction(2);
+    expect(store.readSuperAlertScreenFraction(), 1);
+  });
 }

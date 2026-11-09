@@ -23,6 +23,11 @@ class SuperAlertStrings {
   String get dueMessage => isFrench
       ? 'Cette tâche réclame votre attention :'
       : 'This task needs your attention:';
+  String get displaySizeTitle =>
+      isFrench ? 'Taille de la super alerte' : 'Super alert size';
+  String get displaySizeHelp => isFrench
+      ? 'Pourcentage de l’écran utilisé sur Windows.'
+      : 'Percentage of the screen used on Windows.';
 }
 
 extension SuperAlertStringsContext on BuildContext {

@@ -19,6 +19,7 @@ import 'package:mya/features/settings/widgets/auth_settings_dialog.dart';
 import 'package:mya/features/settings/widgets/hotkey_settings_dialog.dart';
 import 'package:mya/application/hotkeys/global_hotkey_service.dart';
 import 'package:mya/l10n/mya_localizations.dart';
+import 'package:mya/l10n/super_alert_strings.dart';
 import 'package:mya/platform/platform_providers.dart';
 
 /// Paramètres MYA accessibles depuis le panneau (engrenage).
@@ -61,6 +62,7 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
   late bool _startupEnabled;
   late bool _alwaysOnTop;
   late double _bubbleSize;
+  late double _superAlertScreenFraction;
   late String _selectedIconId;
   late bool _freeDragEnabled;
   BubbleAnchor? _selectedAnchor;
@@ -75,6 +77,9 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
     _startupEnabled = settings.startupEnabled;
     _alwaysOnTop = ref.read(alwaysOnTopServiceProvider).isEnabled;
     _bubbleSize = appearance.size;
+    _superAlertScreenFraction = ref
+        .read(deviceSettingsStoreProvider)
+        .readSuperAlertScreenFraction();
     _selectedIconId = appearance.iconId;
     _freeDragEnabled = settings.freeDragEnabled;
     _selectedAnchor = settings.anchor;
@@ -116,6 +121,13 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
     await ref.read(bubbleAppearanceProvider.notifier).setSize(size);
   }
 
+  Future<void> _applySuperAlertScreenFraction(double fraction) async {
+    setState(() => _superAlertScreenFraction = fraction);
+    await ref
+        .read(deviceSettingsStoreProvider)
+        .saveSuperAlertScreenFraction(fraction);
+  }
+
   Future<void> _applyIconId(String iconId) async {
     setState(() => _selectedIconId = iconId);
     await ref.read(bubbleAppearanceProvider.notifier).setIconId(iconId);
@@ -152,6 +164,7 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
+    final alertStrings = context.superAlertStrings;
     final authConfigured = ref.watch(authConfiguredProvider);
     final syncSnapshot = ref.watch(cloudSyncStatusProvider);
     final packageInfo = ref.watch(packageInfoProvider);
@@ -180,6 +193,31 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const AppLanguageSettingsSection(),
+              const SizedBox(height: 16),
+              Text(
+                alertStrings.displaySizeTitle,
+                style: theme.textTheme.titleSmall,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                alertStrings.displaySizeHelp,
+                style: theme.textTheme.bodySmall,
+              ),
+              Slider(
+                value: _superAlertScreenFraction,
+                min: 0.5,
+                max: 1,
+                divisions: 5,
+                label: '${(_superAlertScreenFraction * 100).round()} %',
+                onChanged: (value) =>
+                    unawaited(_applySuperAlertScreenFraction(value)),
+              ),
+              Center(
+                child: Text(
+                  '${(_superAlertScreenFraction * 100).round()} %',
+                  style: theme.textTheme.labelLarge,
+                ),
+              ),
               const SizedBox(height: 16),
               Text(l10n.bubbleSectionTitle, style: theme.textTheme.titleSmall),
               const SizedBox(height: 8),
@@ -359,10 +397,7 @@ class _TrayHelpCard extends StatelessWidget {
                   size: 20,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  l10n.trayHelpTitle,
-                  style: theme.textTheme.titleSmall,
-                ),
+                Text(l10n.trayHelpTitle, style: theme.textTheme.titleSmall),
               ],
             ),
             const SizedBox(height: 8),

@@ -5,6 +5,7 @@ import 'package:mya/application/bubble/bubble_position.dart';
 import 'package:mya/application/hotkeys/global_hotkey_codec.dart';
 import 'package:mya/core/constants/bubble_icon_catalog.dart';
 import 'package:mya/core/constants/device_preference_keys.dart';
+
 import 'dart:io';
 
 import 'package:mya/core/constants/window_constants.dart';
@@ -91,6 +92,19 @@ class DeviceSettingsStore {
     );
   }
 
+  double readSuperAlertScreenFraction() {
+    return (_prefs.getDouble(DevicePreferenceKeys.superAlertScreenFraction) ??
+            1.0)
+        .clamp(0.5, 1.0);
+  }
+
+  Future<void> saveSuperAlertScreenFraction(double fraction) async {
+    await _prefs.setDouble(
+      DevicePreferenceKeys.superAlertScreenFraction,
+      fraction.clamp(0.5, 1.0),
+    );
+  }
+
   bool hasSelectedBubbleIcon() {
     return _prefs.containsKey(DevicePreferenceKeys.bubbleIconId);
   }
@@ -104,7 +118,8 @@ class DeviceSettingsStore {
   }
 
   bool hasOfferedAndroidWidgetPin() {
-    return _prefs.getBool(DevicePreferenceKeys.androidWidgetPinOffered) ?? false;
+    return _prefs.getBool(DevicePreferenceKeys.androidWidgetPinOffered) ??
+        false;
   }
 
   Future<void> markAndroidWidgetPinOffered() async {
@@ -145,7 +160,10 @@ class DeviceSettingsStore {
   }
 
   Future<void> setCloudSignInPromptPending(bool pending) async {
-    await _prefs.setBool(DevicePreferenceKeys.cloudSignInPromptPending, pending);
+    await _prefs.setBool(
+      DevicePreferenceKeys.cloudSignInPromptPending,
+      pending,
+    );
   }
 
   Future<void> clearCloudSignInPromptPending() async {
@@ -185,6 +203,9 @@ class DeviceSettingsStore {
   }
 
   Future<void> dismissUpdateVersion(String versionKey) async {
-    await _prefs.setString(DevicePreferenceKeys.updateDismissedVersion, versionKey);
+    await _prefs.setString(
+      DevicePreferenceKeys.updateDismissedVersion,
+      versionKey,
+    );
   }
 }

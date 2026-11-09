@@ -399,10 +399,22 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
     if (alert != null) {
       _modalDialogsOpen++;
       try {
-        await SuperAlertDialog.show(context, alert);
+        await _showSuperAlert(alert);
       } finally {
         _modalDialogsOpen--;
       }
+    }
+  }
+
+  Future<void> _showSuperAlert(Task task) async {
+    final fraction = ref
+        .read(deviceSettingsStoreProvider)
+        .readSuperAlertScreenFraction();
+    final snapshot = await _windowService.enterSuperAlertLayout(fraction);
+    try {
+      if (mounted) await SuperAlertDialog.show(context, task);
+    } finally {
+      await _windowService.restoreLayout(snapshot);
     }
   }
 
@@ -419,7 +431,7 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
 
     _modalDialogsOpen++;
     try {
-      await SuperAlertDialog.show(context, task);
+      await _showSuperAlert(task);
     } finally {
       _modalDialogsOpen--;
     }

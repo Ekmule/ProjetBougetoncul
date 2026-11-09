@@ -18,6 +18,13 @@ import 'package:open_filex/open_filex.dart';
 
 import 'package:path/path.dart' as p;
 
+const windowsSilentInstallerArguments = [
+  '/VERYSILENT',
+  '/SUPPRESSMSGBOXES',
+  '/CLOSEAPPLICATIONS',
+  '/RESTARTAPPLICATIONS',
+];
+
 
 
 /// Interroge GitHub Releases et installe la build MYA (Windows ou Android).
@@ -294,13 +301,11 @@ class GitHubReleaseUpdateService implements UpdateService {
 
     if (Platform.isWindows) {
 
-      await Process.start(installer.path, const [
-
-        '/CLOSEAPPLICATIONS',
-
-        '/RESTARTAPPLICATIONS',
-
-      ], runInShell: true);
+      await Process.start(
+        installer.path,
+        windowsSilentInstallerArguments,
+        runInShell: true,
+      );
 
       exit(0);
 

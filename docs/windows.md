@@ -217,7 +217,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\publish-github-release.ps1 -B
 | **Détection** | API `releases/latest` sur `Ekmule/ProjetBougetoncul` |
 | **Asset attendu** | `MYA-Setup-x.y.z.exe` ou `MYA-Setup-x.y.z-buildN.exe` |
 | **UI** | Paramètres → Mises à jour + proposition automatique (max 1× / 24 h) |
-| **Installation** | Lance l'installateur Inno (`/CLOSEAPPLICATIONS /RESTARTAPPLICATIONS`) |
+| **Installation** | Lance silencieusement l'installateur Inno (`/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS`). Les choix et données existants sont conservés. |
 | **Synchronisation cloud** | Option « bientôt disponible » — enregistre la préférence pour D14–D15 |
 
 ### Tester une mise à jour

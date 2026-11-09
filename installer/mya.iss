@@ -82,6 +82,7 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Lancer MYA"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Flags: nowait skipifnotsilent; Check: IsUpgradeInstall
 
 [Registry]
 ; Supprime uniquement l'entrée de désinstallation du build D1 dont l'AppId

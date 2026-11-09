@@ -206,6 +206,7 @@ Stockés dans **shared_preferences** uniquement (ADR-007). Jamais synchronisés.
 | `always_on_top` | bool | Mode toujours au-dessus |
 | `startup_enabled` | bool | Démarrage avec Windows |
 | `global_hotkey` | string | JSON du raccourci configuré |
+| `super_alert_screen_fraction` | double | Part de l'écran utilisée par la super alerte Windows (`0.5` à `1.0`) |
 | `panel_expanded` | bool | Panneau ouvert ou réduit |
 
 ---

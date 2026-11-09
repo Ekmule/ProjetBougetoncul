@@ -21,6 +21,7 @@ class WindowsWindowController implements WindowService, ScreenListener {
   var _alwaysOnTop = true;
   double _bubbleSize;
   Size _lastSize;
+  var _lastWasBubble = true;
   BubbleAnchor? _preferredAnchor;
   String? _preferredDisplayId;
   Offset? _freeMovePointerOffset;
@@ -74,6 +75,7 @@ class WindowsWindowController implements WindowService, ScreenListener {
     required bool isPreview,
     required bool isPanel,
   }) async {
+    _lastWasBubble = isBubble;
     final Size targetSize;
     if (isPanel) {
       targetSize = const Size(
@@ -160,6 +162,67 @@ class WindowsWindowController implements WindowService, ScreenListener {
     BubbleDebug.log('applyBubbleSize', {
       'size': '${_bubbleSize.toInt()}x${_bubbleSize.toInt()}',
     });
+  }
+
+  @override
+  Future<WindowLayoutSnapshot> enterSuperAlertLayout(
+    double screenFraction,
+  ) async {
+    final currentSize = await windowManager.getSize();
+    final currentPosition = await windowManager.getPosition();
+    final snapshot = WindowLayoutSnapshot(
+      size: currentSize,
+      position: currentPosition,
+      wasBubble: _lastWasBubble,
+    );
+
+    final displays = await getDisplays();
+    final currentCenter =
+        currentPosition + Offset(currentSize.width / 2, currentSize.height / 2);
+    final display = BubblePositioning.nearestDisplay(currentCenter, displays);
+    final fraction = screenFraction.clamp(0.5, 1.0);
+    final targetSize = Size(
+      display.workArea.width * fraction,
+      display.workArea.height * fraction,
+    );
+    final targetPosition = Offset(
+      display.workArea.left + (display.workArea.width - targetSize.width) / 2,
+      display.workArea.top + (display.workArea.height - targetSize.height) / 2,
+    );
+
+    await windowManager.setHasShadow(fraction < 1);
+    await windowManager.setBackgroundColor(const Color(0xFF1E1E1E));
+    await windowManager.setMinimumSize(const Size(1, 1));
+    await windowManager.setSize(targetSize);
+    await windowManager.setPosition(targetPosition);
+    _lastSize = targetSize;
+    _lastPosition = targetPosition;
+    _lastWasBubble = false;
+    await _ensureAlwaysOnTop();
+    await windowManager.focus();
+    return snapshot;
+  }
+
+  @override
+  Future<void> restoreLayout(WindowLayoutSnapshot snapshot) async {
+    await windowManager.setMinimumSize(const Size(1, 1));
+    await windowManager.setSize(snapshot.size);
+    await windowManager.setPosition(snapshot.position);
+    await windowManager.setHasShadow(!snapshot.wasBubble);
+    await windowManager.setBackgroundColor(
+      snapshot.wasBubble
+          ? WindowConstants.bubbleHitTestColor
+          : const Color(0xFF1E1E1E),
+    );
+    await windowManager.setMinimumSize(
+      snapshot.wasBubble
+          ? snapshot.size
+          : Size(snapshot.size.width, WindowConstants.previewHeight),
+    );
+    _lastSize = snapshot.size;
+    _lastPosition = snapshot.position;
+    _lastWasBubble = snapshot.wasBubble;
+    await _ensureAlwaysOnTop();
   }
 
   /// Active ou désactive le mode « toujours au-dessus ».

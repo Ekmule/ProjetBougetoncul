@@ -4,9 +4,15 @@ import 'package:mya/application/updates/github_release_update_service.dart';
 import 'package:mya/application/updates/update_asset_kind.dart';
 
 void main() {
+  test('mise à jour Windows lance Inno silencieusement', () {
+    expect(windowsSilentInstallerArguments, contains('/VERYSILENT'));
+    expect(windowsSilentInstallerArguments, contains('/SUPPRESSMSGBOXES'));
+    expect(windowsSilentInstallerArguments, contains('/CLOSEAPPLICATIONS'));
+    expect(windowsSilentInstallerArguments, contains('/RESTARTAPPLICATIONS'));
+  });
+
   test('parseReleasePayload extrait l installateur MYA', () {
-    final release = GitHubReleaseUpdateService.parseReleasePayload(
-      {
+    final release = GitHubReleaseUpdateService.parseReleasePayload({
       'tag_name': 'v1.0.2',
       'body': 'Correctifs sync',
       'published_at': '2026-09-30T08:00:00Z',
@@ -21,9 +27,7 @@ void main() {
               'https://example.com/MYA-Setup-1.0.2-build5.exe',
         },
       ],
-      },
-      assetKind: UpdateAssetKind.windowsInstaller,
-    );
+    }, assetKind: UpdateAssetKind.windowsInstaller);
 
     expect(release, isNotNull);
     expect(
@@ -35,18 +39,16 @@ void main() {
   });
 
   test('parseReleasePayload extrait l APK Android MYA', () {
-    final release = GitHubReleaseUpdateService.parseReleasePayload(
-      {
-        'tag_name': 'v1.0.2',
-        'assets': [
-          {
-            'name': 'MYA-Android-1.0.2-build3.apk',
-            'browser_download_url': 'https://example.com/MYA-Android-1.0.2-build3.apk',
-          },
-        ],
-      },
-      assetKind: UpdateAssetKind.androidApk,
-    );
+    final release = GitHubReleaseUpdateService.parseReleasePayload({
+      'tag_name': 'v1.0.2',
+      'assets': [
+        {
+          'name': 'MYA-Android-1.0.2-build3.apk',
+          'browser_download_url':
+              'https://example.com/MYA-Android-1.0.2-build3.apk',
+        },
+      ],
+    }, assetKind: UpdateAssetKind.androidApk);
 
     expect(release, isNotNull);
     expect(release!.fileName, 'MYA-Android-1.0.2-build3.apk');
