@@ -117,6 +117,15 @@ class DeviceSettingsStore {
     await _prefs.setBool(DevicePreferenceKeys.onboardingCompleted, true);
   }
 
+  bool isFirstUseTutorialCompleted() {
+    return _prefs.getBool(DevicePreferenceKeys.firstUseTutorialCompleted) ??
+        false;
+  }
+
+  Future<void> markFirstUseTutorialCompleted() async {
+    await _prefs.setBool(DevicePreferenceKeys.firstUseTutorialCompleted, true);
+  }
+
   bool hasOfferedAndroidWidgetPin() {
     return _prefs.getBool(DevicePreferenceKeys.androidWidgetPinOffered) ??
         false;

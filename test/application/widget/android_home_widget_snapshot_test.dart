@@ -24,6 +24,7 @@ void main() {
 
     expect(snapshot.showTodayAttention, isTrue);
     expect(snapshot.todayHeadline, 'Portrait');
+    expect(snapshot.attentionDate, '2026-10-13');
   });
 
   test('pas de pastille si date future', () {
@@ -44,6 +45,27 @@ void main() {
 
     expect(snapshot.showTodayAttention, isFalse);
     expect(snapshot.showSyncBadge, isTrue);
+    expect(snapshot.attentionDate, '2026-10-14');
+  });
+
+  test('animation si une tâche active est en retard', () {
+    final task = Task.createNew(
+      id: 'late',
+      title: 'En retard',
+      plannedDate: now.subtract(const Duration(days: 2)),
+      now: now,
+    );
+
+    final snapshot = buildAndroidHomeWidgetSnapshot(
+      iconId: 'icon01',
+      showSyncBadge: false,
+      visibleTasks: [task],
+      now: now,
+    );
+
+    expect(snapshot.showTodayAttention, isTrue);
+    expect(snapshot.todayHeadline, 'En retard');
+    expect(snapshot.attentionDate, '2026-10-11');
   });
 
   test('pas de pastille pour tâche terminée', () {
@@ -64,6 +86,7 @@ void main() {
 
     expect(snapshot.showTodayAttention, isFalse);
     expect(snapshot.iconId, 'icon02');
+    expect(snapshot.attentionDate, isEmpty);
   });
 
   test('tronque un titre trop long pour le widget 2×2', () {

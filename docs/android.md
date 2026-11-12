@@ -162,9 +162,14 @@ Après ajout du widget, **pincez les bords** sur l’écran d’accueil pour pas
 3. Glissez le widget MYA où vous voulez (par défaut souvent **2×2** ; réduisez en **1×1** si besoin)
 4. **Tap** sur le widget → ouvre la liste des tâches
 
-Les pastilles se mettent à jour à l’ouverture de l’app, au retour au premier plan, après sync et quand vous modifiez une tâche. Si MYA n’est pas ouverte, le widget peut rester figé jusqu’au prochain lancement (pas de mise à jour à minuit en arrière-plan pour l’instant).
+Le widget se met à jour à l’ouverture de l’app, au retour au premier plan, après
+sync et quand vous modifiez une tâche. Lorsqu’une tâche datée est prévue
+aujourd’hui ou en retard, l’icône oscille sur les formats 1×1 et 2×2. Android
+demande aussi un rafraîchissement périodique (environ toutes les 30 minutes,
+selon le launcher et les restrictions batterie) afin d’activer l’animation
+après un changement de jour même si MYA reste fermée.
 
-> Animation au rappel et création rapide depuis le widget : phases D17b–D17c.
+> Création rapide depuis le widget : phase D17c.
 
 ---
 

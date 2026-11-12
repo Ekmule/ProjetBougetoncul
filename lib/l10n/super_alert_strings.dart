@@ -23,6 +23,8 @@ class SuperAlertStrings {
   String get dueMessage => isFrench
       ? 'Cette tâche réclame votre attention :'
       : 'This task needs your attention:';
+  String get judgmentCaption =>
+      isFrench ? 'Mon chat vous juge' : 'My cat judges you';
   String get displaySizeTitle =>
       isFrench ? 'Taille de la super alerte' : 'Super alert size';
   String get displaySizeHelp => isFrench

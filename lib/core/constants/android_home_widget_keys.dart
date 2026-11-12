@@ -4,6 +4,7 @@ abstract final class AndroidHomeWidgetKeys {
   static const syncBadgeVisible = 'mya_sync_badge_visible';
   static const todayAttentionVisible = 'mya_today_attention_visible';
   static const todayHeadline = 'mya_today_headline';
+  static const attentionDate = 'mya_attention_date';
 
   /// Longueur max stockée pour le widget 2×2 (RemoteViews).
   static const todayHeadlineMaxLength = 80;
@@ -19,6 +20,7 @@ class AndroidHomeWidgetSnapshot {
     required this.showSyncBadge,
     required this.showTodayAttention,
     required this.todayHeadline,
+    required this.attentionDate,
   });
 
   final String iconId;
@@ -29,4 +31,7 @@ class AndroidHomeWidgetSnapshot {
 
   /// Première tâche « aujourd'hui » (widget 2×2), vide sinon.
   final String todayHeadline;
+
+  /// Date ISO locale de la prochaine tâche datée, pour l'activation à minuit.
+  final String attentionDate;
 }

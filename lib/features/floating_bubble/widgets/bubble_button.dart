@@ -27,23 +27,23 @@ class BubbleButton extends StatefulWidget {
 class _BubbleButtonState extends State<BubbleButton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  late final Animation<double> _offsetAnimation;
+  late final Animation<double> _wobbleAnimation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 3200),
       vsync: this,
     );
 
-    _offsetAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -6.0), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -6.0, end: 6.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 6.0, end: -4.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -4.0, end: 4.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 4.0, end: 0.0), weight: 1),
-      TweenSequenceItem(tween: ConstantTween(0.0), weight: 4),
+    _wobbleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: -0.08), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -0.08, end: 0.08), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 0.08, end: -0.05), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -0.05, end: 0.05), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 0.05, end: 0.0), weight: 1),
+      TweenSequenceItem(tween: ConstantTween(0.0), weight: 8),
     ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     if (widget.animate) {
@@ -79,10 +79,12 @@ class _BubbleButtonState extends State<BubbleButton>
     return Tooltip(
       message: tooltip,
       child: AnimatedBuilder(
-        animation: _offsetAnimation,
+        animation: _wobbleAnimation,
         builder: (context, child) {
-          return Transform.translate(
-            offset: Offset(_offsetAnimation.value, 0),
+          return Transform.rotate(
+            angle: MediaQuery.disableAnimationsOf(context)
+                ? 0
+                : _wobbleAnimation.value,
             child: child,
           );
         },

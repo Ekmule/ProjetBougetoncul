@@ -11,6 +11,7 @@ import 'package:mya/features/settings/widgets/app_about_footer.dart';
 import 'package:mya/features/settings/widgets/app_language_settings_section.dart';
 import 'package:mya/features/settings/widgets/app_update_dialog.dart';
 import 'package:mya/features/settings/widgets/auth_settings_dialog.dart';
+import 'package:mya/features/settings/widgets/cat_support_section.dart';
 import 'package:mya/features/shared/widgets/cloud_sync_badge.dart';
 import 'package:mya/l10n/mya_localizations.dart';
 import 'package:mya/platform/android/android_home_widget_bridge.dart';
@@ -39,101 +40,106 @@ class MobileSettingsSheet extends ConsumerWidget {
     final syncSnapshot = ref.watch(cloudSyncStatusProvider);
     final packageInfo = ref.watch(packageInfoProvider);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(l10n.settingsTitle, style: theme.textTheme.titleLarge),
-        const SizedBox(height: 16),
-        if (ProductConfig.supportsCloud)
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.settingsTitle, style: theme.textTheme.titleLarge),
+          const SizedBox(height: 16),
+          if (ProductConfig.supportsCloud)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.person_outline),
+              title: Text(l10n.accountAndSyncTitle),
+              subtitle: Text(
+                syncSnapshot.accountAndSyncSummary(
+                  l10n: l10n,
+                  isConfigured: authConfigured,
+                ),
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                Navigator.of(context).pop();
+                await AuthSettingsDialog.show(context);
+              },
+            ),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.person_outline),
-            title: Text(l10n.accountAndSyncTitle),
-            subtitle: Text(
-              syncSnapshot.accountAndSyncSummary(
-                l10n: l10n,
+            leading: const Icon(Icons.system_update_alt_outlined),
+            title: Text(l10n.updatesTitle),
+            subtitle: packageInfo.when(
+              data: (info) => Text(
+                l10n.versionLine.replaceFirst(
+                  '{version}',
+                  '${info.version}'
+                      '${info.buildNumber.isEmpty ? '' : ' (build ${info.buildNumber})'}',
+                ),
+              ),
+              loading: () => Text(l10n.versionLoading),
+              error: (_, _) => Text(l10n.versionUnknown),
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () async {
+              Navigator.of(context).pop();
+              await AppUpdateSettingsDialog.show(context);
+            },
+          ),
+          if (Platform.isAndroid) ...[
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.widgets_outlined),
+              title: Text(l10n.homeWidgetTitle),
+              subtitle: Text(l10n.homeWidgetSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                Navigator.of(context).pop();
+                final supported =
+                    await AndroidHomeWidgetBridge.isPinSupported();
+                if (!context.mounted) return;
+                if (supported) {
+                  await AndroidHomeWidgetBridge.requestPin();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.homeWidgetPinUnsupported)),
+                  );
+                }
+              },
+            ),
+          ],
+          if (ProductConfig.supportsCloud &&
+              syncSnapshot.showsConnectedBadge) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: CloudSyncStatusChip(snapshot: syncSnapshot),
+            ),
+          ],
+          const SizedBox(height: 16),
+          const AppLanguageSettingsSection(),
+          const SizedBox(height: 16),
+          const CatSupportSection(),
+          const SizedBox(height: 16),
+          const AppAboutFooter(compact: true),
+          if (ProductConfig.supportsCloud && !authConfigured) ...[
+            const SizedBox(height: 12),
+            Text(
+              l10n.supabaseNotConfigured,
+              style: TextStyle(color: theme.colorScheme.secondary),
+            ),
+          ] else if (ProductConfig.supportsCloud) ...[
+            const SizedBox(height: 8),
+            Text(
+              AuthDisplay.accountSummary(
+                l10n,
+                ref.watch(authUserProvider).value,
                 isConfigured: authConfigured,
               ),
+              style: theme.textTheme.bodySmall,
             ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () async {
-              Navigator.of(context).pop();
-              await AuthSettingsDialog.show(context);
-            },
-          ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.system_update_alt_outlined),
-          title: Text(l10n.updatesTitle),
-          subtitle: packageInfo.when(
-            data: (info) => Text(
-              l10n.versionLine.replaceFirst(
-                '{version}',
-                '${info.version}'
-                    '${info.buildNumber.isEmpty ? '' : ' (build ${info.buildNumber})'}',
-              ),
-            ),
-            loading: () => Text(l10n.versionLoading),
-            error: (_, _) => Text(l10n.versionUnknown),
-          ),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () async {
-            Navigator.of(context).pop();
-            await AppUpdateSettingsDialog.show(context);
-          },
-        ),
-        if (Platform.isAndroid) ...[
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.widgets_outlined),
-            title: Text(l10n.homeWidgetTitle),
-            subtitle: Text(l10n.homeWidgetSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () async {
-              Navigator.of(context).pop();
-              final supported = await AndroidHomeWidgetBridge.isPinSupported();
-              if (!context.mounted) return;
-              if (supported) {
-                await AndroidHomeWidgetBridge.requestPin();
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.homeWidgetPinUnsupported)),
-                );
-              }
-            },
-          ),
+          ],
         ],
-        if (ProductConfig.supportsCloud &&
-            syncSnapshot.showsConnectedBadge) ...[
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: CloudSyncStatusChip(snapshot: syncSnapshot),
-          ),
-        ],
-        const SizedBox(height: 16),
-        const AppLanguageSettingsSection(),
-        const SizedBox(height: 16),
-        const AppAboutFooter(compact: true),
-        if (ProductConfig.supportsCloud && !authConfigured) ...[
-          const SizedBox(height: 12),
-          Text(
-            l10n.supabaseNotConfigured,
-            style: TextStyle(color: theme.colorScheme.secondary),
-          ),
-        ] else if (ProductConfig.supportsCloud) ...[
-          const SizedBox(height: 8),
-          Text(
-            AuthDisplay.accountSummary(
-              l10n,
-              ref.watch(authUserProvider).value,
-              isConfigured: authConfigured,
-            ),
-            style: theme.textTheme.bodySmall,
-          ),
-        ],
-      ],
+      ),
     );
   }
 }

@@ -78,6 +78,19 @@ void main() {
     expect(store.isOnboardingCompleted(), isTrue);
   });
 
+  test(
+    'le tutoriel de première utilisation est affiché une seule fois',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final store = DeviceSettingsStore(prefs);
+
+      expect(store.isFirstUseTutorialCompleted(), isFalse);
+      await store.markFirstUseTutorialCompleted();
+      expect(store.isFirstUseTutorialCompleted(), isTrue);
+    },
+  );
+
   test('taille de super alerte vaut 100 % par défaut et se persiste', () async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();

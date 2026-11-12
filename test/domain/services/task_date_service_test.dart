@@ -52,6 +52,16 @@ void main() {
     expect(service.clearPlannedDate(task, now: today).plannedDate, isNull);
   });
 
+  test('activer directement la super alerte ne planifie pas la tâche', () {
+    final task = Task.createNew(id: 't1', title: 'Direct', now: today);
+
+    final updated = service.setSuperAlert(task, true, now: today);
+
+    expect(updated.superAlertEnabled, isTrue);
+    expect(updated.plannedDate, isNull);
+    expect(service.isSuperAlertDue(updated, today), isFalse);
+  });
+
   test('super alerte se déclenche le jour prévu puis une fois en retard', () {
     final task = Task.createNew(
       id: 't1',

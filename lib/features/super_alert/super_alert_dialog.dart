@@ -4,6 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mya/application/tasks/tasks_notifier.dart';
+import 'package:mya/core/cat_image_catalog.dart';
 import 'package:mya/domain/entities/task.dart';
 import 'package:mya/l10n/super_alert_strings.dart';
 
@@ -26,13 +27,19 @@ class SuperAlertDialog extends ConsumerStatefulWidget {
   ConsumerState<SuperAlertDialog> createState() => _SuperAlertDialogState();
 }
 
-class _SuperAlertDialogState extends ConsumerState<SuperAlertDialog> {
+class _SuperAlertDialogState extends ConsumerState<SuperAlertDialog>
+    with SingleTickerProviderStateMixin {
   final AudioPlayer _player = AudioPlayer();
+  late final AnimationController _colorController;
   var _busy = false;
 
   @override
   void initState() {
     super.initState();
+    _colorController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat(reverse: true);
     unawaited(_startSound());
   }
 
@@ -61,6 +68,7 @@ class _SuperAlertDialogState extends ConsumerState<SuperAlertDialog> {
 
   @override
   void dispose() {
+    _colorController.dispose();
     unawaited(_player.dispose());
     super.dispose();
   }
@@ -69,6 +77,7 @@ class _SuperAlertDialogState extends ConsumerState<SuperAlertDialog> {
   Widget build(BuildContext context) {
     final strings = context.superAlertStrings;
     final size = MediaQuery.sizeOf(context);
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
     return Dialog.fullscreen(
       backgroundColor: Colors.black,
@@ -84,6 +93,24 @@ class _SuperAlertDialogState extends ConsumerState<SuperAlertDialog> {
                   fontWeight: FontWeight.w900,
                 ),
               ),
+              const SizedBox(height: 8),
+              AnimatedBuilder(
+                animation: _colorController,
+                builder: (context, _) {
+                  final progress = reduceMotion ? 0.5 : _colorController.value;
+                  final color = Color.lerp(
+                    Colors.redAccent,
+                    Colors.amberAccent,
+                    progress,
+                  );
+                  return Text(
+                    strings.judgmentCaption,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall
+                        ?.copyWith(color: color, fontWeight: FontWeight.w800),
+                  );
+                },
+              ),
               const SizedBox(height: 12),
               Text(strings.dueMessage),
               const SizedBox(height: 8),
@@ -96,14 +123,45 @@ class _SuperAlertDialogState extends ConsumerState<SuperAlertDialog> {
               const SizedBox(height: 20),
               Expanded(
                 child: Center(
-                  child: Image.asset(
-                    'assets/super_alert/Alert01.png',
-                    width: size.width,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, _, _) => const Icon(
-                      Icons.notification_important_rounded,
-                      color: Colors.redAccent,
-                      size: 140,
+                  child: AnimatedBuilder(
+                    animation: _colorController,
+                    builder: (context, child) {
+                      final progress = reduceMotion
+                          ? 0.5
+                          : _colorController.value;
+                      final color = Color.lerp(
+                        Colors.redAccent,
+                        Colors.amberAccent,
+                        progress,
+                      )!;
+                      return Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: color, width: 4),
+                          boxShadow: [
+                            BoxShadow(
+                              color: color.withValues(alpha: 0.35),
+                              blurRadius: 28,
+                              spreadRadius: 3,
+                            ),
+                          ],
+                        ),
+                        child: child,
+                      );
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.asset(
+                        CatImageCatalog.today,
+                        width: size.width,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => const Icon(
+                          Icons.notification_important_rounded,
+                          color: Colors.redAccent,
+                          size: 140,
+                        ),
+                      ),
                     ),
                   ),
                 ),

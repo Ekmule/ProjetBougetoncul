@@ -14,6 +14,12 @@ import android.view.View
 
 import android.widget.RemoteViews
 
+import java.text.SimpleDateFormat
+
+import java.util.Date
+
+import java.util.Locale
+
 import es.antonborri.home_widget.HomeWidgetLaunchIntent
 
 import es.antonborri.home_widget.HomeWidgetPlugin
@@ -94,6 +100,10 @@ class MyaHomeWidgetProvider : HomeWidgetProvider() {
 
         val showTodayBadge = widgetData.getBoolean(KEY_TODAY_ATTENTION_VISIBLE, false)
 
+        val attentionDate = widgetData.getString(KEY_ATTENTION_DATE, "") ?: ""
+
+        val showAttention = showTodayBadge || isDateDue(attentionDate)
+
         val todayHeadline = widgetData.getString(KEY_TODAY_HEADLINE, "") ?: ""
 
         val iconRes = iconDrawableFor(iconId)
@@ -109,6 +119,17 @@ class MyaHomeWidgetProvider : HomeWidgetProvider() {
         val views = RemoteViews(context.packageName, layoutId).apply {
 
             setImageViewResource(R.id.mya_widget_icon, iconRes)
+            ICON_FRAME_IDS.forEach { frameId ->
+                setImageViewResource(frameId, iconRes)
+            }
+            setViewVisibility(
+                R.id.mya_widget_icon,
+                if (showAttention) View.GONE else View.VISIBLE,
+            )
+            setViewVisibility(
+                R.id.mya_widget_icon_animation,
+                if (showAttention) View.VISIBLE else View.GONE,
+            )
 
             setViewVisibility(
 
@@ -122,7 +143,7 @@ class MyaHomeWidgetProvider : HomeWidgetProvider() {
 
                 R.id.mya_widget_today_badge,
 
-                if (showTodayBadge) View.VISIBLE else View.GONE,
+                if (showAttention) View.VISIBLE else View.GONE,
 
             )
 
@@ -130,7 +151,7 @@ class MyaHomeWidgetProvider : HomeWidgetProvider() {
 
             if (expanded) {
 
-                val hasToday = todayHeadline.isNotBlank()
+                val hasToday = showAttention && todayHeadline.isNotBlank()
 
                 setViewVisibility(
 
@@ -160,7 +181,7 @@ class MyaHomeWidgetProvider : HomeWidgetProvider() {
 
                     R.id.mya_widget_attention_ring,
 
-                    if (showTodayBadge) View.VISIBLE else View.GONE,
+                    if (showAttention) View.VISIBLE else View.GONE,
 
                 )
 
@@ -222,6 +243,16 @@ class MyaHomeWidgetProvider : HomeWidgetProvider() {
 
     }
 
+    private fun isDateDue(attentionDate: String): Boolean {
+
+        if (attentionDate.isBlank()) return false
+
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+
+        return attentionDate <= today
+
+    }
+
 
 
     companion object {
@@ -234,11 +265,24 @@ class MyaHomeWidgetProvider : HomeWidgetProvider() {
 
         const val KEY_TODAY_HEADLINE = "mya_today_headline"
 
+        const val KEY_ATTENTION_DATE = "mya_attention_date"
+
 
 
         private const val DEFAULT_ICON_ID = "icon01"
 
         private const val EXPANDED_MIN_DP = 90
+
+        private val ICON_FRAME_IDS = intArrayOf(
+            R.id.mya_widget_icon_frame_1,
+            R.id.mya_widget_icon_frame_2,
+            R.id.mya_widget_icon_frame_3,
+            R.id.mya_widget_icon_frame_4,
+            R.id.mya_widget_icon_frame_5,
+            R.id.mya_widget_icon_frame_6,
+            R.id.mya_widget_icon_frame_7,
+            R.id.mya_widget_icon_frame_8,
+        )
 
     }
 

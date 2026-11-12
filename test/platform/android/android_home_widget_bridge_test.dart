@@ -9,6 +9,7 @@ void main() {
       showSyncBadge: true,
       showTodayAttention: false,
       todayHeadline: '',
+      attentionDate: '',
     );
 
     final built = buildAndroidHomeWidgetSnapshot(

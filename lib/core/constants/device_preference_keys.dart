@@ -17,6 +17,7 @@ abstract final class DevicePreferenceKeys {
   static const appLocale = 'app_locale';
   static const cloudSignInPromptPending = 'cloud_sign_in_prompt_pending';
   static const onboardingCompleted = 'onboarding_completed';
+  static const firstUseTutorialCompleted = 'first_use_tutorial_completed';
   static const androidWidgetPinOffered = 'android_widget_pin_offered';
   static const updateCheckLastAt = 'update_check_last_at';
   static const updateDismissedVersion = 'update_dismissed_version';

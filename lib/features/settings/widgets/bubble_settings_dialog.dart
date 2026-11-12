@@ -8,6 +8,7 @@ import 'package:mya/application/updates/update_providers.dart';
 import 'package:mya/features/settings/widgets/app_about_footer.dart';
 import 'package:mya/features/settings/widgets/app_language_settings_section.dart';
 import 'package:mya/features/settings/widgets/app_update_dialog.dart';
+import 'package:mya/features/settings/widgets/cat_support_section.dart';
 import 'package:mya/application/bubble/always_on_top_service.dart';
 import 'package:mya/application/bubble/bubble_appearance_notifier.dart';
 import 'package:mya/application/bubble/bubble_position.dart';
@@ -311,6 +312,8 @@ class _BubbleSettingsDialogState extends ConsumerState<BubbleSettingsDialog> {
               ),
               const Divider(height: 24),
               _TrayHelpCard(l10n: l10n, onShowTrayHint: widget.onShowTrayHint),
+              const SizedBox(height: 16),
+              const CatSupportSection(),
               const SizedBox(height: 16),
               const AppAboutFooter(),
             ],

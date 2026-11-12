@@ -40,6 +40,7 @@ L’utilisateur **n’est pas obligé** de créer un compte pour utiliser MYA.
 ### 3.3 Ce que MYA ne doit pas viser à collecter
 
 - Données de santé, bancaires, mots de passe, secrets professionnels critiques — **à déconseiller explicitement** dans l’UI et la politique.
+- Une suggestion (255 caractères maximum) n’est transmise qu’à l’initiative de l’utilisateur, par son application e-mail, à `zonakron.edition@gmail.com` ; MYA ne l’enregistre pas automatiquement. Les boutons de don ouvrent PayPal et sont soumis à la politique de confidentialité de PayPal.
 
 ---
 

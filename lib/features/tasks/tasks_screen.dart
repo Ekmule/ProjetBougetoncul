@@ -12,6 +12,7 @@ import 'package:mya/core/configuration/product_config.dart';
 import 'package:mya/domain/services/task_date_service.dart';
 import 'package:mya/features/onboarding/android_widget_pin_dialog.dart';
 import 'package:mya/features/onboarding/cloud_sign_in_prompt.dart';
+import 'package:mya/features/onboarding/first_use_tutorial_dialog.dart';
 import 'package:mya/features/quick_add/quick_add_presenter.dart';
 import 'package:mya/features/settings/mobile_settings_sheet.dart';
 import 'package:mya/features/shared/widgets/cloud_sync_badge.dart';
@@ -37,6 +38,8 @@ class _TasksScreenState extends ConsumerState<TasksScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await maybeShowFirstUseTutorial(context, ref);
+      if (!mounted) return;
       if (ProductConfig.supportsCloud) {
         await maybeShowCloudSignInPrompt(context, ref);
       }

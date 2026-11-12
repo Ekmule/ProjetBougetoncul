@@ -45,6 +45,10 @@ abstract final class AndroidHomeWidgetBridge {
         AndroidHomeWidgetKeys.todayHeadline,
         snapshot.todayHeadline,
       );
+      await HomeWidget.saveWidgetData<String>(
+        AndroidHomeWidgetKeys.attentionDate,
+        snapshot.attentionDate,
+      );
       await HomeWidget.updateWidget(
         name: AndroidHomeWidgetKeys.providerName,
         androidName: AndroidHomeWidgetKeys.providerName,

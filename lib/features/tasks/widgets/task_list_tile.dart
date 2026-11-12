@@ -115,8 +115,6 @@ class TaskListTile extends StatelessWidget {
         enableReminderEdit &&
         !isCompleted &&
         task.isActive &&
-        onSetReminder != null &&
-        onClearReminder != null &&
         onSetSuperAlert != null;
     final canReopen = isCompleted && task.isCompleted && onReopen != null;
     final canEditTask =
@@ -189,8 +187,6 @@ class TaskListTile extends StatelessWidget {
                 if (canEditReminder)
                   TaskReminderButton(
                     task: task,
-                    onSetReminder: (when) => onSetReminder!(task.id, when),
-                    onClearReminder: () => onClearReminder!(task.id),
                     onSetSuperAlert: (enabled) =>
                         onSetSuperAlert!(task.id, enabled),
                   ),

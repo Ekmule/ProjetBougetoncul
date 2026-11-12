@@ -13,6 +13,88 @@
         android:scaleType="fitCenter"
         android:src="@drawable/mya_icon_01" />
 
+    <ViewFlipper
+        android:id="@+id/mya_widget_icon_animation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:autoStart="true"
+        android:contentDescription="@string/mya_widget_attention_animation"
+        android:flipInterval="300"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/mya_widget_icon_frame_1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:rotation="-6"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mya_icon_01" />
+
+        <ImageView
+            android:id="@+id/mya_widget_icon_frame_2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:rotation="-3"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mya_icon_01" />
+
+        <ImageView
+            android:id="@+id/mya_widget_icon_frame_3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:rotation="0"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mya_icon_01" />
+
+        <ImageView
+            android:id="@+id/mya_widget_icon_frame_4"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:rotation="3"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mya_icon_01" />
+
+        <ImageView
+            android:id="@+id/mya_widget_icon_frame_5"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:rotation="6"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mya_icon_01" />
+
+        <ImageView
+            android:id="@+id/mya_widget_icon_frame_6"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:rotation="3"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mya_icon_01" />
+
+        <ImageView
+            android:id="@+id/mya_widget_icon_frame_7"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:rotation="0"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mya_icon_01" />
+
+        <ImageView
+            android:id="@+id/mya_widget_icon_frame_8"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:rotation="-3"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mya_icon_01" />
+    </ViewFlipper>
+
     <ImageView
         android:id="@+id/mya_widget_sync_badge"
         android:layout_width="10dp"

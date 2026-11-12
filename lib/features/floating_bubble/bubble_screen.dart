@@ -15,6 +15,7 @@ import 'package:mya/domain/entities/task.dart';
 import 'package:mya/domain/services/task_date_service.dart';
 import 'package:mya/features/floating_bubble/bubble_debug.dart';
 import 'package:mya/features/onboarding/cloud_sign_in_prompt.dart';
+import 'package:mya/features/onboarding/first_use_tutorial_dialog.dart';
 import 'package:mya/features/floating_bubble/widgets/bubble_button.dart';
 import 'package:mya/features/floating_bubble/widgets/task_panel.dart';
 import 'package:mya/features/quick_add/quick_add_presenter.dart';
@@ -57,6 +58,7 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
 
   Timer? _hoverTimer;
   Timer? _collapseTimer;
+  Timer? _dateRefreshTimer;
   var _isApplyingViewMode = false;
   var _isUpdatingFreeMove = false;
   var _modalDialogsOpen = 0;
@@ -74,6 +76,7 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
     _trayService = WindowsTrayService(_trayActions, _readTrayMenuState);
     windowManager.addListener(this);
     _registerHotkey();
+    _scheduleDateRefresh();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _trayService.initialize();
       await _refreshTrayMenu();
@@ -97,9 +100,24 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
   void dispose() {
     _hoverTimer?.cancel();
     _collapseTimer?.cancel();
+    _dateRefreshTimer?.cancel();
     windowManager.removeListener(this);
     unawaited(_trayService.dispose());
     super.dispose();
+  }
+
+  void _scheduleDateRefresh() {
+    _dateRefreshTimer?.cancel();
+    final now = DateTime.now();
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    _dateRefreshTimer = Timer(
+      tomorrow.difference(now) + const Duration(seconds: 1),
+      () {
+        if (!mounted) return;
+        setState(() {});
+        _scheduleDateRefresh();
+      },
+    );
   }
 
   /// Clic en dehors — réduit le panneau complet (ADR-018, pas l'aperçu survol).
@@ -269,6 +287,8 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
         }
       }
     }
+    if (!mounted) return;
+    await maybeShowFirstUseTutorial(context, ref);
     if (!mounted) return;
     if (ProductConfig.supportsCloud) {
       await maybeShowCloudSignInPrompt(context, ref);
@@ -619,14 +639,9 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
     final syncSnapshot = ref.watch(cloudSyncStatusProvider);
     final now = DateTime.now();
     const dateService = TaskDateService();
-
-    final hasOverdueOrTodayTask = listState.grouped.values
-        .expand((list) => list)
-        .any(
-          (task) =>
-              dateService.isOverdue(task, now) ||
-              dateService.isDueToday(task, now),
-        );
+    final hasTaskDueToday = listState.grouped.values
+        .expand((tasks) => tasks)
+        .any((task) => dateService.isDueToday(task, now));
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -670,7 +685,7 @@ class _BubbleScreenState extends ConsumerState<BubbleScreen>
                         alwaysOnTop: uiState.alwaysOnTop,
                         size: bubbleSize,
                         assetPath: bubbleAssetPath,
-                        animate: hasOverdueOrTodayTask,
+                        animate: hasTaskDueToday,
                         syncSnapshot: syncSnapshot,
                       ),
                     ),
